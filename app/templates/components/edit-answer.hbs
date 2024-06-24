@@ -1,0 +1,10 @@
+<div data-test-survey-answer-wrap class="survey__answer">
+  {{#if this.is_editing_or_new}}
+    <div class="form-group form-inline">
+      <Input @type="text" @value={{this.answer.answer_text}} class="form-control"/>
+      {{inline-errors pointer="/data/attributes/question_text" errors=this.errors}}
+    </div>
+  {{else}}
+    <li>{{this.answer.answer_text}} ({{this.answer.total_responses}})</li>
+  {{/if}}
+</div>

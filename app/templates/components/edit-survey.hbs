@@ -1,0 +1,68 @@
+<div data-test-survey-wrap class="survey">
+	{{#if this.is_editing_or_new}}
+		<div class="form-wrap">
+			<div class="form-group">
+			  <label>Open Survey at</label>
+			  <TdDatetimepicker
+		      @locale="en-gb" 
+		      @sideBySide={{true}}
+		      @stepping="5" 
+		      @minDate={{this.minDate}}
+		      @maxDate={{this.maxDate}}
+		      @viewDate={{this.survey.enable_at}}
+		      @date={{this.survey.enable_at}}
+		      @setDate={{action (mut this.survey.enable_at)}}
+		      @timeZone={{this.festival.timezone}}
+		      @toolbarPlacement={{this.widgetPositioning}} 
+		      @inline={{false}}
+		    />
+			  {{inline-errors pointer="/data/attributes/question_text" errors=this.errors}}
+			</div>
+
+			<div class="form-group">
+			  <label>Close survey at</label>
+			  <TdDatetimepicker
+		      @locale="en-gb" 
+		      @sideBySide={{true}}
+		      @stepping="5" 
+		      @minDate={{this.minDate}}
+		      @maxDate={{this.maxDate}}
+		      @viewDate={{this.survey.disable_at}}
+		      @date={{this.survey.disable_at}}
+		      @setDate={{action (mut this.survey.disable_at)}}
+		      @timeZone={{this.festival.timezone}}
+		      @toolbarPlacement={{this.widgetPositioning}} 
+		      @inline={{false}}
+		    />
+			  {{inline-errors pointer="/data/attributes/question_text" errors=this.errors}}
+			</div>
+		</div>
+	{{else}}
+		<div data-test-enable-disable-message>
+			<strong>Survey</strong>
+			<p>
+				{{#if this.survey.enable_at}}
+					<small>This poll will open at {{moment-format this.survey.enable_at "h:mm a on MMM Do YYYY"}}</small>  <br>
+				{{/if}}
+				{{#if this.survey.disable_at}}
+					<small>This poll will close at {{moment-format this.survey.disable_at  "h:mm a on MMM Do YYYY"}}</small>
+				{{/if}}
+			</p>
+		</div>
+	{{/if}}
+
+	{{#each this.survey.questions as |question index|}}
+		<EditQuestion 
+			@question={{question}} 
+			@is_editing_or_new={{this.is_editing_or_new}} 
+			@index={{index}}
+		/>
+	{{/each}}
+
+	{{#if this.is_editing_or_new}}
+		<button data-test-create-new-question id="survey__add-question" class="boma-btn add" type="button" {{action "newQuestion"}}>
+	    <FaIcon @icon="plus-square"/>
+	    Create Question
+	  </button>
+	{{/if}}
+</div>

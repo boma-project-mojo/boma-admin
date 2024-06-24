@@ -1,0 +1,125 @@
+<div class="box message">
+  <div class="actions">
+    {{#if this.message.isDraft}}
+      {{#if this.isScheduling}}
+        <h5 class="clearboth">Send at:</h5>
+        <button class="boma-btn send" disabled={{this.isSaving}} type="button" {{action "updateMessage"}}>
+          <FaIcon @icon="clock"/>
+          Schedule
+        </button>
+        <button class="boma-btn right" type="button" {{action "cancel"}}>
+          <FaIcon @icon="minus-circle"/>
+          Cancel
+        </button>
+        <br><br>
+        <TdDatetimepicker
+          @locale="en-gb" 
+          @sideBySide="true"
+          @stepping="60" 
+          @setDate={{action (mut this.message.send_at)}}
+        />
+      {{else}}
+        {{#if this.isSending}}
+          <button class="boma-btn send" disabled="true" type="button">
+            <FaIcon @icon="paper-plane"/>
+            Sending
+          </button>
+        {{else}}
+          {{#if this.message.send_at}}
+          
+            <p>This message will be sent at {{moment-format this.message.send_at "h:mm a on MMM Do YYYY"}}</p>
+            <button class="boma-btn delete right" disabled={{this.isSaving}} type="button" {{action "unschedule"}}>
+              <FaIcon @icon="minus-circle"/>
+              Cancel
+            </button>
+          {{else}}
+            <button class="boma-btn send" disabled={{this.isSending}} type="button" {{action "sendMessage"}}>
+              <FaIcon @icon="paper-plane"/>
+              Send Now
+            </button>
+            <button class="boma-btn send" type="button" {{action "schedule"}}>
+              <FaIcon @icon="clock"/>
+              Schedule for Later
+            </button>
+            <button class="boma-btn delete" disabled={{this.isSending}} type="button" {{action "deleteDraft"}}>
+              <FaIcon @icon="minus-circle"/>
+              Delete
+            </button>
+          {{/if}}
+        {{/if}}
+      {{/if}}
+    {{/if}}
+    {{#if this.message.isSent}}
+      <button class="boma-btn delete" type="button" {{action "removeFromHistory"}}>
+        <FaIcon @icon="minus-circle"/>
+        Remove
+      </button>
+    {{/if}}
+    {{!-- {{published-state resource=page current_user=current_user btn_class_name="btn-block"}}  --}}   
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <p>{{this.message.subject}}</p>
+      <p>{{this.message.body}}</p>
+      {{#if this.message.sent_at}}
+        <p>
+          <strong>Date Sent</strong>
+          {{moment-format this.message.sent_at 'ddd Do MMM YYYY @ h:mma'}}
+        </p>
+      {{/if}}
+      <p>
+        <strong>Stream</strong>
+        {{this.message.stream}}
+      </p>  
+
+      {{#if this.message.app_version}}
+        <p>
+          <strong>Target App Version</strong>
+          {{this.message.app_version}}
+        </p>  
+      {{/if}}
+
+      {{#if this.message.token_type_name}}
+        <p>
+          <strong>Target Token Type</strong>
+          {{this.message.token_type_name}}
+        </p>  
+      {{/if}}
+
+      {{#if this.message.address}}
+        <p>
+          <strong>Target Address</strong>
+          {{this.message.address}}
+        </p>  
+      {{/if}}
+
+      {{#if this.message.linked_model.title}}
+        <p>
+          <strong>Linked Record</strong>
+          {{this.message.linked_model.title}}<br>
+        </p>
+      {{/if}}
+
+      {{#if this.message.linked_model.name}}
+        <p>
+          <strong>Linked Record</strong>
+          {{this.message.linked_model.name}}<br>
+        </p>
+      {{/if}}
+
+    </div>    
+    <div class="col-md-1">
+      {{#unless this.message.isDraft}}
+        <h6>Sending Status</h6>
+        <p><strong>Queued:</strong> {{if this.message.message_status.draft this.message.message_status.draft 0}} <br></p>
+        <p><strong>Sending:</strong> {{if this.message.message_status.approved this.message.message_status.approved 0}} <br></p>
+        <p><strong>Sent:</strong> {{if this.message.message_status.sent this.message.message_status.sent 0}} <br></p>
+        <p><strong>Failed:</strong> {{if this.message.message_status.failed this.message.message_status.failed 0}} <br></p>
+      {{/unless}}
+    </div>
+  </div>
+
+  {{this.send_at}}
+  
+</div>

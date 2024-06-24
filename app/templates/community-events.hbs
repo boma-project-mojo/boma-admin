@@ -1,0 +1,33 @@
+<ApplicationHeader @current_user={{this.current_user}} @festival={{this.model.festival}} @organisation={{this.model.organisation}} @isLoading={{this.isLoading}}>
+  
+</ApplicationHeader>
+
+<div class="container-fluid" id="main">
+  <div id="filters"></div>
+  <div class="events">
+    {{#if this.model.events}}
+      {{#each this.model.events as |event index|}}
+        <SortOrder @index={{index}} @image_url={{event.image_thumb}} as |orderStyles|>
+          {{community-event-edit 
+            event=event 
+            venues=this.model.venues 
+            refreshModel="refreshModel" 
+            festival_id=this.model.festival.id 
+            imageStyle=orderStyles.imageStyle
+            contentStyle=orderStyles.contentStyle
+            setNumber=orderStyles.setNumber
+          }}
+        </SortOrder>
+      {{/each}}
+    {{else}}
+      {{#unless this.newEvent}}
+        <div class="va-outer">
+          <div class="va-inner">
+            <h1>No Community Events</h1><br>
+          </div>
+        </div>
+      {{/unless}}
+    {{/if}}
+  </div>
+  {{infinity-loader infinityModel=this.model.events hideOnInfinity=true loadingText="Loading..." loadedText=""}}
+</div>

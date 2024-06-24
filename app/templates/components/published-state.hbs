@@ -1,0 +1,20 @@
+{{#if this.current_user.is_admin_or_super_admin}}
+  {{#if this.resource.is_published}}
+    {{#if (eq this.modelType "tag")}}
+      <button class="boma-btn publish" type="button" {{action "hide"}}>
+        <FaIcon @icon="upload"/>   
+        Hide
+      </button>  
+    {{else}}
+      <button class="boma-btn publish" type="button" {{action "unpublish"}}>
+        <FaIcon @icon="upload"/>   
+        Unpublish
+      </button>  
+    {{/if}}
+  {{else}}
+    <button class="boma-btn publish" disabled={{this.resource.is_not_locked}} type="button" {{action "publish"}}>
+      <FaIcon @icon="download"/>   
+      Publish
+    </button>
+  {{/if}}
+{{/if}}

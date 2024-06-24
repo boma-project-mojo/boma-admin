@@ -1,0 +1,36 @@
+<div class="va-outer">
+  <div id="auth" class="va-inner">
+    <img src="assets/images/boma-logo.svg" id="brand" alt="Boma logo">
+    <form {{action 'claimInvite' on='submit'}}>
+      <h2>Claim Invite</h2>
+      <p>Enter your password to claim your invite.</p>
+      {{#if this.errors}}
+        <div class="alert alert-danger">
+          {{#each this.errors as |error|}}
+            {{error}}
+          {{/each}}
+        </div>
+      {{/if}}
+      {{#if this.messages}}
+        <div class="alert alert-danger">
+          {{#each this.messages as |message|}}
+            {{message}}
+          {{/each}}
+        </div>
+      {{/if}}
+
+      <Input @type='hidden' id='identification' placeholder='Enter Login' @value={{this.token}} />
+      <div class="form-group">
+        <Input @type='password' id='password' placeholder='Enter New Password' @value={{this.password}} class='form-control' />
+      </div>
+      <div class="form-group">
+        <Input @type='password' id='validatePassword' placeholder='Confirm Password' @value={{this.validatePassword}} class='form-control' />
+      </div>
+      <button class="boma-btn login add" type="submit">
+        <FaIcon @icon="sign-in-alt"/>
+        Claim Invite
+      </button>
+      <div class="auth-link"><LinkTo @route="login">Back to Login</LinkTo></div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,122 @@
+<div class="flash error">
+
+</div>
+<nav class="navbar navbar-inverse navbar-fixed-top {{this.environment}}">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      {{#if this.current_user}}   
+        <LinkTo @route="organisations" class="navbar-brand">
+          <img src="assets/images/boma-logo.svg" alt="Boma logo">
+        </LinkTo>
+      {{else}}
+        <a class="navbar-brand">
+          <img src="assets/images/boma-logo.svg" alt="Boma logo">
+        </a>
+      {{/if}}  
+    </div>
+    <div id="navbar" class="">
+      <ul class="nav navbar-nav">
+        {{#if this.current_user}}     
+          <li class="white">
+            <LinkTo @route="festivals" @model={{this.festival.organisation.id}}>{{this.organisation.name}}</LinkTo>
+          </li>
+          <li>
+            <span class="grey">
+              {{this.festival.name}}
+            </span>
+          </li>
+          <li>
+            
+          </li>   
+          <li>
+            <LinkTo @route="events" @models={{array this.festival.organisation.id this.festival.id}}  @query={{hash query=""}}>Events</LinkTo>
+          </li>        
+          <li>
+            {{#if this.current_user.is_admin_or_super_admin}}
+              <LinkTo @route="productions" @models={{array this.festival.organisation.id this.festival.id }} @query={{hash query=""}}>Acts</LinkTo>
+            {{/if}}            
+          </li>
+          <li>
+            {{#if this.current_user.is_admin_or_super_admin}}
+              <LinkTo @route="venues" @models={{array this.festival.organisation.id this.festival.id}} @query={{hash  venue_type="retailer"}}>Retailers</LinkTo>
+            {{/if}}
+          </li>
+          <li>
+            {{#if this.current_user.is_admin_or_super_admin}}
+              <LinkTo @route="venues" @models={{array this.festival.organisation.id this.festival.id}} @query={{hash venue_type="performance"}}>Venues</LinkTo>
+            {{/if}}
+          </li>  
+          <li>
+            {{#if this.current_user.is_admin_or_super_admin}}
+              <LinkTo @route="tags" @models={{array this.festival.organisation.id this.festival.id}} >Tags</LinkTo>
+            {{/if}}
+          </li>
+          <li>
+            {{#if this.current_user.is_admin_or_super_admin}} 
+              <LinkTo @route="pages" @models={{array this.festival.organisation.id this.festival.id}} >Pages</LinkTo>
+            {{/if}}
+          </li>
+          <li> 
+            {{#if this.current_user.is_admin_or_super_admin}} 
+              <LinkTo @route="users" @models={{array this.festival.organisation.id this.festival.id}} >Users</LinkTo>
+            {{/if}}
+          </li>
+          <li> 
+            {{#if this.current_user.is_admin_or_super_admin}} 
+              <LinkTo @route="articles" @models={{array this.festival.organisation.id this.festival.id}} @query={{hash article_type=""}}>Articles</LinkTo>
+            {{/if}}
+          </li>
+          <li> 
+            {{#if this.current_user.is_admin_or_super_admin}} 
+              <LinkTo @route="messages" @models={{array this.festival.organisation.id this.festival.id}} >Push <br>Notifications</LinkTo>
+            {{/if}}
+          </li>
+
+          {{#if this.festival.show_overflow_menu}}
+            <li id="toggle-overflow-menu">
+              <span {{action "toggleOverflowMenu"}}><i class="fas fa-ellipsis-h"></i></span>
+            </li>
+          {{/if}}
+
+          <div id="overflow-menu">
+            {{#if this.festival.community_events_enabled}}
+              <li> 
+                {{#if this.current_user.is_admin_or_super_admin}} 
+                  <LinkTo @route="community-events" @models={{array this.festival.organisation.id this.festival.id}} >Community <br>Events</LinkTo>
+                {{/if}}
+              </li>
+              <li> 
+                {{#if this.current_user.is_admin_or_super_admin}} 
+                  <LinkTo @route="venues"  @models={{array this.festival.organisation.id this.festival.id}} @query={{hash venue_type="community_venue"}}>Community <br>Venues</LinkTo>
+                {{/if}}
+              </li>
+            {{/if}}
+            {{#if this.festival.analysis_enabled}}
+              <li> 
+                {{#if this.current_user.is_admin_or_super_admin}} 
+                  <LinkTo @route="analysis" @models={{array this.festival.organisation.id this.festival.id}} @query={{hash from=this.analysisFrom to=this.analysisTo}}>
+                    Analysis
+                    <span class="beta">beta</span>
+                  </LinkTo>
+                {{/if}}
+              </li>
+            {{/if}}
+          </div>
+        {{else}}
+
+        {{/if}}
+      </ul>
+    </div>
+    <div id="header-right">
+      <ul class="nav navbar-nav">
+        {{yield
+          (hash 
+            toggleFilters=(action 'toggleFilters')
+          )
+        }}
+        <li><LinkTo @route="settings"><FaIcon @icon="cog"/></LinkTo></li>
+      </ul>
+    </div>
+  
+  </div>
+</nav>

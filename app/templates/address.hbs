@@ -1,0 +1,98 @@
+{{#if this.current_user.is_super_admin}}    
+
+<div class="flash error">
+
+</div>
+<nav class="navbar navbar-inverse navbar-fixed-top" class="{{this.environment}}">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <LinkTo @route="organisations" class="navbar-brand" role="button" aria-pressed="false">
+        <img src="assets/images/boma-logo.svg">
+      </LinkTo>
+    </div>
+    <div id="navbar">
+      <ul class="nav navbar-nav">
+        <li>
+          {{#link-to route="organisations"}}All Organisations{{/link-to}}
+        </li>   
+        <li>
+          {{#link-to route="address"}}Address Explorer{{/link-to}}
+        </li>   
+      </ul>
+    </div>
+    {{#if this.isLoadingService.isLoading}}
+      <div id="loading">
+        <FaIcon @icon="cog"/>
+      </div>
+    {{/if}}
+    <div id="header-right">
+      <ul class="nav navbar-nav">
+        <li><LinkTo @route="settings"><FaIcon @icon="cog"/></LinkTo></li>
+      </ul>
+    </div>
+  </div>
+  
+</nav>
+
+<div class="container-fluid" id="main">
+  <div id="address">
+    {{#if this.model.data}}
+      <h4>Address Details</h4>
+      <form class="form-inline">
+        <div class="form-group">
+          <Input  @type="text" @value={{this.address}} class="form-control form-control-plaintext" placeholder="Address (public key)"/>
+          <button {{action "getData"}} class="boma-btn none"> Update Address </button> 
+        </div>
+      </form>
+
+      <hr>
+      <div class="row">
+        <div class="col-md-4">
+          <h4 class="clearboth">Organisation Addresses</h4>
+          {{#each this.model.data.data.attributes.organisation_addresses as |oa|}}
+            {{json-stringify context=oa}}
+          {{/each}}
+        </div>
+        <div class="col-md-4">
+          <h4>Activities</h4>
+          {{#each this.model.data.data.attributes.activities as |activity|}}
+            {{json-stringify context=activity}}
+          {{/each}}
+        </div>
+        <div class="col-md-4">
+          <h4>Push Notifications</h4>
+          {{#each this.model.data.data.attributes.push_notifications as |push_notification|}} 
+            {{json-stringify context=push_notification}}
+          {{/each}}
+        </div>
+      </div>
+    {{else}}
+      <div class="va-outer">
+        <div class="va-inner">
+          <h1>Get Address Details</h1>
+
+          {{#if (eq this.model.data undefined)}}
+            <div class="error">Sorry, we couldn't find this address.</div>
+          {{/if}}
+
+          <br>
+
+          <div class="form-wrap">
+            <div class="form-group">
+              <Input  @type="text" @value={{this.address}} class="form-control" placeholder="Address (public key)"/>
+              <br>
+              <button {{action "getData"}} class="boma-btn none"> Find Address </button> 
+            </div>
+          </div>
+        </div>
+      </div>
+    {{/if}}
+  </div>
+</div>
+{{else}}
+  <div class="va-outer">
+    <div class="va-inner">
+      <h1>You are not authorised to view this page.</h1>
+    </div>
+  </div>
+{{/if}}

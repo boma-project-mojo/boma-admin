@@ -1,0 +1,43 @@
+<ApplicationHeader @current_user={{this.current_user}} @festival={{this.model.festival}} @organisation={{this.model.organisation}}>
+  {{#unless this.newProduction}}
+    <li>
+      <button class="boma-btn add" type="button" {{action "addMessage"}}>
+        <FaIcon @icon="plus-square"/>
+        Add <br>Message
+      </button>
+    </li>
+  {{/unless}}
+</ApplicationHeader>
+<div class="container-fluid" id="main">
+
+  {{#if this.newMessage}}
+    {{message-create 
+      message=this.newMessage 
+      resetNewMessage=(action "resetNewMessage")
+      refreshModel=(action "refreshModel")
+      model=this.model
+      festival_id=this.model.festival.id
+      organisation_id=this.model.festival.organisation.id
+    }}
+  {{/if}}
+  {{#if this.model.messages}}
+    {{#each this.model.messages as |message|}}
+      {{message-show message=message refreshModel=(action "refreshModel")}}
+    {{/each}}
+  {{else}}
+    {{#unless this.newMessage}}
+      <div class="va-outer">
+        <div class="va-inner">
+          <h1>Create your first message</h1><br>
+          <button class="boma-btn add" type="button" {{action "addMessage"}}>
+            <FaIcon @icon="plus-square"/>
+            Add Message
+          </button>
+        </div>
+      </div>
+    {{/unless}}
+  {{/if}}
+
+  {{infinity-loader infinityModel=this.model.messages hideOnInfinity=true loadingText="Loading..."
+  loadedText=""}}
+</div>

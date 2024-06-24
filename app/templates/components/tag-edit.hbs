@@ -1,0 +1,87 @@
+<div data-set-number="{{this.setNumber}}" class="image-square no-gradient no-image {{this.is_shown_class}}" style={{this.imageStyle}}>
+  <h3 class="tag-name"><strong>{{this.tag.name}}</strong> ({{this.tagTypeForView}})
+    <p id="tag_description"><small>{{this.tag.description}}</small></p>
+  </h3>
+
+  <div class="square-actions">
+    <button class="boma-btn edit" type="button" {{action "edit"}}>
+      <FaIcon @icon="pen-square"/>
+      Edit
+    </button>
+    {{published-state modelType="tag" resource=this.tag current_user=this.current_user btn_class_name="btn-block"}}
+{{!--     <button {{action "delete"}} class="boma-btn delete">
+      <FaIcon @icon="minus-circle"/>
+      Delete Tag
+    </button> --}}
+  </div>
+</div>
+<div class="content-wrap {{this.is_shown_class}}" style={{this.contentStyle}}>
+  {{#if this.is_editing_or_new}}
+    <div class="editing box tag">
+      <h1>Editing Tag</h1>
+      <div class="actions">
+        {{#if this.tag.isNew}}
+          <button class="boma-btn save" type="button" {{action "saveNew"}}>
+            <FaIcon @icon="check-square"/>
+            Save
+          </button>
+          <button class="boma-btn delete" type="button" {{action "discard"}}>
+            <FaIcon @icon="minus-circle"/>
+            Discard
+          </button>
+        {{else}}
+          <button class="boma-btn save" type="button" {{action "save"}}>
+            <FaIcon @icon="check-square"/>
+            Save
+          </button>  
+          <button class="boma-btn delete" type="button" {{action "cancel"}}>
+            <FaIcon @icon="minus-circle"/>
+            Cancel
+          </button>
+        {{/if}}
+      </div>
+      <div class="form-wrap">
+        <div class="form-group form-inline">
+          <label>Tag name</label>
+          <Input @type="text" @value={{this.tag.name}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/name" errors=this.errors}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Tag type</label>
+          <PowerSelect @selected={{find-by 'key' this.tag.tag_type this.tagTypes}} @options={{this.tagTypes}} @searchField="name" @onChange={{action (mut this.tag.tag_type) value="key"}} as |tagType|>
+            {{tagType.name}}
+          </PowerSelect>
+          {{inline-errors pointer="/data/attributes/tag_type" errors=this.errors}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Description</label>
+          <Textarea @type="text" @value={{this.tag.description}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/description" errors=this.errors}}
+        </div>
+      </div>
+    </div> {{!-- .editing --}}
+  {{else}}
+    <div class="production box">
+      <div class="row">
+        <div class="col-xs-10">
+          <h6>Tag Details</h6>
+          <p>
+            <strong>Name</strong>
+            {{this.tag.name}}
+          </p>
+          <p>
+            <strong>Tag Type</strong>
+            {{this.tag.tag_type}}
+          </p>
+        </div>
+        <div class="col-xs-2">
+          <button class="btn btn-warning btn-block" type="button" {{action "edit"}}>Edit</button>
+          <button class="btn btn-danger btn-block" type="button" {{action "delete"}}>Delete Tag</button>
+          {{!-- {{published-state resource=page current_user=current_user btn_class_name="btn-block"}}  --}}   
+        </div>
+      </div>
+    </div> {{!-- .production --}}
+  {{/if}}
+</div>

@@ -1,0 +1,97 @@
+<ApplicationHeader @current_user={{this.current_user}} @festival={{this.model.festival}} @organisation={{this.model.organisation}} @isLoading={{this.isLoading}} as |applicationHeader|>
+  {{#unless this.newProduction}}
+    <li>
+      <button class="boma-btn add" type="button" {{action "addProduction"}}>
+        <FaIcon @icon="plus-square"/>
+        Add <br>Act
+      </button>
+    </li>
+  {{/unless}}
+  <li id="toggle-filters" {{action (action applicationHeader.toggleFilters)}}><a><FaIcon @icon="filter"/></a></li>
+</ApplicationHeader>
+
+<div class="container-fluid {{unless this.festival.require_production_images "list-view"}}" id="main">
+  <div id="filters">
+    {{#if this.current_user.is_admin_or_super_admin}}
+      {{filter-select 
+        placeholder="filter by venue..."
+        selected_id=this.venue_id
+        selected=this.venue
+        options=this.model.venues
+        searchField="name_and_subtitle"
+        refreshModel=(action "refreshModel")
+      }}
+
+      <div class="filter">
+        {{filter-select 
+          placeholder="filter by tag..."
+          selected_id=this.tag_id
+          selected=this.tag
+          options=this.model.tags
+          searchField="name"
+          refreshModel=(action "refreshModel")
+        }}
+        <div class="filter-checkbox">
+          <input type="checkbox" checked={{if (eq this.acts_without_tags "true") true}} onclick={{action (mut this.acts_without_tags) value="target.checked"}}>
+          <label for="admin-checkbox">Show all Acts without a tag</label>
+        </div>
+      </div>
+
+    {{/if}}
+
+    {{search-and-sort query=this.query refreshModel=(action "refreshModel")}}
+  </div>
+
+  <div class="productions">
+    {{#if this.newProduction}}
+      <div id="new-production">
+        {{production-edit 
+          production=this.newProduction 
+          tags=this.model.tags 
+          venues=this.model.venues 
+          resetNewProduction=(action "resetNewProduction")
+          saveProduction=(action "saveProduction")
+          refreshModel=(action "refreshModel")
+          showEditEvents=true
+          festival=this.model.festival
+        }}
+      </div>
+    {{/if}}
+
+    {{#if this.model.productions}}
+      {{#each this.model.productions as |production index|}}
+        <SortOrder @index={{index}} @model={{production}} @image_url={{production.image_thumb}} @columns={{if this.model.festival.require_production_images 5 1}} as |orderStyles|>
+          {{production-edit 
+            production=production 
+            saveProduction=(action "saveProduction")
+            tags=this.model.tags 
+            venues=this.model.venues
+            current_user=this.current_user
+            showEditEvents=true
+            imageStyle=orderStyles.imageStyle
+            contentStyle=orderStyles.contentStyle
+            setNumber=orderStyles.setNumber
+            refreshModel=(action "refreshModel")
+            festival=this.model.festival
+            isEditing=this.isEditing
+          }}
+        </SortOrder>
+      {{/each}}
+    {{else}}
+      {{#unless this.newProduction}}
+        <div class="va-outer">
+          <div class="va-inner">
+            <h1>Create an act</h1><br>
+            <button class="boma-btn add" type="button" {{action "addProduction"}}>
+              <FaIcon @icon="plus-square"/>
+              Add Act
+            </button>
+          </div>
+        </div>
+      {{/unless}}
+    {{/if}}
+
+  </div>
+  {{infinity-loader infinityModel=this.model.productions loadingText="Loading..."
+  loadedText="" hideOnInfinity=true}}
+</div>

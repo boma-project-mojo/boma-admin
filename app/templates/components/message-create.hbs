@@ -1,0 +1,151 @@
+<div class="editing box">
+  <h1>New Message</h1>
+
+  <div class="actions">
+    <button class="boma-btn save" type="button" {{action "saveMessage"}}>
+      <FaIcon @icon="pen-square"/>
+      Save
+    </button>
+    <button class="boma-btn delete" type="button" {{action "discard"}}>
+      <FaIcon @icon="minus-circle"/>
+      Discard
+    </button>
+  </div>
+
+  <div class="form-group">
+    <label>Subject</label>
+    <Input @type="text" @value={{this.message.subject}} class="form-control"/>
+    {{#each this.message.errors.subject as |error|}}
+      <span class="error">{{error.message}}</span><br/>
+    {{/each}}
+  </div>
+
+  <div class="form-group">
+    <label>Body</label>
+    <Input @type="text" @value={{this.message.body}} class="form-control"/>
+    {{#each this.message.errors.body as |error|}}
+      <span class="error">{{error.message}}</span><br/>
+    {{/each}}
+  </div>   
+
+  <div class="form-group">
+    <label>Message Stream</label>    
+    <PowerSelect
+      @options={{this.messageStreams}}
+      @searchEnabled={{true}}
+      @searchField="name"
+      @selected={{this.message.stream}}
+      @onChange={{action (mut this.message.stream)}} as |stream|>
+      {{stream.name}}
+    </PowerSelect>
+
+    {{#each this.message.errors.stream as |error|}}
+      <span class="error">{{error.message}}</span><br/>
+    {{/each}}
+  </div>
+
+  <div class="form-group">
+    <label>Send to:</label><br>
+    <label class="radio-btn"> 
+      <input type="radio" name="sendTo" checked={{eq this.sendTo 'all'}} onclick={{action (mut this.sendTo) 'all'}} /> All Users
+    </label>
+    {{#if this.model.organisation.app_versions}}
+      <label class="radio-btn"> 
+        <input type="radio" name="sendTo" checked={{eq this.sendTo 'app_version'}} onclick={{action (mut this.sendTo) 'app_version'}} /> App Version 
+      </label>
+    {{/if}}
+    {{#if this.model.token_types}}
+      <label class="radio-btn"> 
+        <input type="radio" name="sendTo" checked={{not this.sendTo 'token_type'}} onclick={{action (mut this.sendTo) 'token_type'}} /> Token Type
+      </label>
+    {{/if}}
+    <label class="radio-btn"> 
+      <input type="radio" name="sendTo" checked={{not this.sendTo 'address'}} onclick={{action (mut this.sendTo) 'address'}} /> Address
+    </label>
+
+  </div>
+
+  {{#if (eq this.sendTo 'token_type')}}
+    {{#if this.model.token_types}}
+      <div class="form-group">
+        <label>Token</label>    
+        <PowerSelect
+          @options={{this.model.token_types}}
+          @searchEnabled={{true}}
+          @searchField="name"
+          @selected={{this.message.token_type_id}}
+          @onChange={{(action (mut this.message.token_type_id))}} as |tt|>
+          {{tt.name}} ({{tt.total_tokens}})
+        </PowerSelect>
+      </div>
+    {{/if}}
+  {{/if}}
+
+  {{#if (eq this.sendTo 'app_version')}}
+    {{#if this.model.organisation.app_versions}}
+      <div class="form-group">
+        <label>App Version</label>    
+        <PowerSelect
+          @options={{this.model.organisation.app_versions}}
+          @searchEnabled={{true}}
+          @selected={{this.message.app_version}}
+          @searchField="name"
+          @onChange={{(action (mut this.message.app_version))}} as |av|>
+          {{av.name}} ({{av.count}} users)
+        </PowerSelect>
+      </div>
+    {{/if}}
+  {{/if}}
+
+  {{#if (eq this.sendTo 'address')}}
+    <div class="form-group">
+      <label>Address</label>    
+      <Input @type="text" @value={{this.message.address}} class="form-control"/>
+      {{#each this.message.errors.address_id as |error|}}
+        <span class="error">{{error.message}}</span><br/>
+      {{/each}}
+    </div>
+  {{/if}}
+
+  <div class="form-group">
+    <label>Link a record</label><br>
+    <label class="radio-btn"> 
+      <input type="radio" name="articleOrEvent" checked={{eq this.articleOrEvent ''}} onclick={{action (mut this.articleOrEvent) ''}} /> No Linked Record 
+    </label>
+    <label class="radio-btn"> 
+      <input type="radio" name="articleOrEvent" checked={{eq this.articleOrEvent 'article'}} onclick={{action (mut this.articleOrEvent) 'article'}} /> Article 
+    </label>
+    <label class="radio-btn"> 
+      <input type="radio" name="articleOrEvent" checked={{not this.articleOrEvent 'event'}} onclick={{action (mut this.articleOrEvent) 'event'}} /> Event
+    </label>
+
+    {{#if (eq this.articleOrEvent 'article')}}
+      <PowerSelect
+        @search={{action "doSearchArticles"}}
+        @searchEnabled={{true}}
+        @selected={{this.linkedRecord}}
+        @onChange={{action "setMessagableAttrs"}} as |article|>
+        {{article.title}}
+      </PowerSelect>
+    {{/if}}
+
+    {{#if (eq this.articleOrEvent 'event')}}
+      <PowerSelect
+        @search={{action "doSearchEvents"}}
+        @searchEnabled={{true}}
+        @onChange={{action "setMessagableAttrs"}} as |event|>
+        {{event.name}} - {{event.start_time_moment_in_timezone}}
+      </PowerSelect>
+    {{/if}}
+
+    {{#if this.linkedRecord}}
+      <h3>Linked Record</h3>
+      {{this.linkedRecord.title}}
+      {{this.linkedRecord.name}}<br>
+      {{#if this.linkedRecord.start_time}}
+        <strong>Start Time:</strong>  {{this.linkedRecord.start_time_moment_in_timezone_formatted}}
+      {{/if}}
+    {{/if}}
+  </div>
+
+</div> {{!-- .editing --}}

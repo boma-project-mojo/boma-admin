@@ -1,0 +1,17 @@
+{{#if this.args.inline}}
+  <div 
+    id={{this.args.id}}
+    {{did-insert this.createDateTimePicker}}
+    {{did-update this.updateDateTimePicker this.args.defaultDate}}
+    >
+  </div>
+{{else}}
+   <input
+    {{did-insert this.createDateTimePicker}}
+    {{did-update this.updateDateTimePicker this.args.defaultDate}}
+     id={{this.args.id}}
+     type='text'
+     class='form-control'
+     data-td-target='#datetimepicker1'
+   />
+{{/if}}

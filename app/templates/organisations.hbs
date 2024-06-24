@@ -1,0 +1,59 @@
+<div class="flash error">
+
+</div>
+<nav class="navbar navbar-inverse navbar-fixed-top" class="{{this.environment}}">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <LinkTo @route="organisations" class="navbar-brand" role="button" aria-pressed="false">
+        <img src="assets/images/boma-logo.svg">
+      </LinkTo>
+    </div>
+    <div id="navbar">
+      <ul class="nav navbar-nav">
+        <li>
+          {{#link-to route="organisations"}}All Organisations{{/link-to}}
+        </li>
+        {{#if this.current_user.is_super_admin}}      
+          <li>
+            {{#link-to route="address"}}Address Explorer{{/link-to}}
+          </li>   
+        {{/if}}
+      </ul>
+    </div>
+    {{#if this.isLoadingService.isLoading}}
+      <div id="loading">
+        <FaIcon @icon="cog"/>
+      </div>
+    {{/if}}
+    <div id="header-right">
+      <ul class="nav navbar-nav">
+        <li><LinkTo @route="settings"><FaIcon @icon="cog"/></LinkTo></li>
+      </ul>
+    </div>
+  </div>
+  
+</nav>
+
+<div class="container-fluid" id="main">
+  {{#if this.model}}
+    {{#each this.model.organisations as |organisation|}}
+      <div class="organisation box">
+        <div class="actions">
+          <LinkTo @route="festivals" @model={{organisation.id}}>
+            <button class="boma-btn" type="button">
+              <FaIcon @icon="eye" />
+              View Festivals
+            </button>
+          </LinkTo>
+        </div>
+        <h1>
+          <LinkTo @route="festivals" @model={{organisation.id}}>
+            {{organisation.name}}
+          </LinkTo>
+        </h1>
+      </div>  
+    {{/each}}
+  {{else}}
+    ...
+  {{/if}}
+</div>

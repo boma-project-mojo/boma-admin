@@ -1,0 +1,108 @@
+<ApplicationHeader @current_user={{this.current_user}} @festival={{this.model.festival}} @organisation={{this.model.organisation}} @isLoading={{this.isLoading}}></ApplicationHeader>
+
+<div class="container-fluid" id="main">
+	<div id="analyses">
+		<div id="select-analysis-date">
+			<label>From</label>
+			<TdDatetimepicker
+        @locale="en-gb" 
+        @sideBySide="true"
+        @stepping="60" 
+        @date={{this.from}}
+        @setDate={{(action (mut this.from))}}
+        @inline={{false}}
+      />
+	    <div class="clearboth"></div>
+	    <label>To</label>
+	    <TdDatetimepicker
+        @locale="en-gb" 
+        @sideBySide="true"
+        @stepping="60" 
+        @date={{this.to}}
+        @setDate={{(action (mut this.to))}}
+        @inline={{false}}
+      />
+	    <button class="right boma-btn none" type="button" {{action "getData"}}> UPDATE </button> 
+
+	    {{!-- <button {{action "getFestivalReport"}} class="left boma-btn"> All time </button>  --}}
+    </div>
+
+    <div class="stats-wrap">
+    	<h4>All Time Stats</h4>
+    	<div class="stat">
+	    	<label>Total App Users</label>
+	    	<span>{{format-long-number this.model.data.counts.new_users}}</span>
+	    </div>
+	    <div class="stat">
+	    	<label>Total Festival Views</label>
+	    	<span>{{format-long-number this.model.data.counts.app_pings}}</span>
+	    </div>
+	    <div class="stat">
+	    	<label>Total Love for Events</label>
+	    	<span>{{format-long-number this.model.data.counts.love_by_event}}</span>
+	    </div>
+			{{#if (eq this.model.festival.schedule_modal_type "event")}}
+				<div class="stat">
+		    	<label>Total Event Views</label>
+		    	<span>{{format-long-number this.model.data.counts.views_by_event}}</span>
+		    </div>
+	    {{/if}}
+	    {{#if (eq this.model.festival.schedule_modal_type "production")}}
+		    <div class="stat">
+		    	<label>Total Act Views</label>
+		    	<span>{{format-long-number this.model.data.counts.views_by_production}}</span>
+		    </div>
+		  {{/if}}
+	    {{#if this.model.festival.has_articles}}
+				<div class="stat">
+		    	<label>Total Love for Articles</label>
+		    	<span>{{format-long-number this.model.data.counts.love_by_article}}</span>
+		    </div>
+				<div class="stat">
+		    	<label>Total Article Views</label>
+		    	<span>{{format-long-number this.model.data.counts.views_by_article}}</span>
+		    </div>
+	    {{/if}}
+			<div class="stat">
+	    	<label>Total Notifications Sent</label>
+	    	<span>{{format-long-number this.model.data.counts.app_notifications}}</span>
+	    </div>
+    </div>
+
+    <h4 class="clearboth">
+    	Users:
+    </h4>
+    <p>{{this.model.total_users}}</p>
+    {{line-chart data=this.model.data.stats_for_users height=30 showXAxis=false festival=this.model.festival to=this.to from=this.from}}
+
+    <h4 class="clearboth">
+    	Users by App Versions:
+    </h4>
+    {{line-chart data=this.model.data.app_versions height=50 showXAxis=false festival=this.model.festival to=this.to from=this.from}}
+
+		<h4>
+			Admin Actions: <br>	
+			<strong>Notifications Sent, Articles and Events Published</strong>
+		</h4>
+		{{line-chart data=this.model.data.notifications_and_publishing height=30 festival=this.model.festival to=this.to from=this.from}}
+
+		<h4>
+			App Usage: <br>	
+		</h4>
+
+		{{line-chart data=this.model.data.main_chart height=85 showXAxis=false festival=this.model.festival to=this.to from=this.from}}
+		<h4>
+			App Usage: <br>	
+			<strong>Loves &amp; Views by Content Type</strong>
+		</h4>
+		{{line-chart data=this.model.data.stats_by_model_type_for_chart height=10 width=50 festival=this.model.festival to=this.to from=this.from}}
+
+		{{#if this.model.data.stat_types_by_tag_for_chart}}
+			<h4>
+				App Usage by Tag:
+			</h4>
+		
+			{{multi-chart-wrapper data=this.model.data.stat_types_by_tag_for_chart festival=this.model.festival to=this.to from=this.from}}
+		{{/if}}
+	</div>
+</div>

@@ -1,0 +1,50 @@
+<ApplicationHeader @current_user={{this.current_user}} @festival={{this.model.festival}} @organisation={{this.model.organisation}}>
+  {{#unless this.newPage}}
+    <li>
+      <button class="boma-btn add" type="button" {{action "addPage"}}>
+        <FaIcon @icon="plus-square"/>
+        <FaIcon @icon="plus-square"/>
+        Add <br>Page
+      </button>
+    </li>
+  {{/unless}}
+</ApplicationHeader>
+<div class="container-fluid" id="main">
+  <div class="pages">
+    {{#if this.newPage}}
+      <div id="new-page">
+        {{page-edit 
+          page=this.newPage
+          resetNewPage=(action "resetNewPage")
+          refreshModel=(action "refreshModel")
+        }}
+      </div>
+    {{/if}}
+    {{#if this.model.pages}}
+      {{#each this.model.pages as |page index|}}
+        <SortOrder @index={{index}} @model={{page}} @image_url={{page.image_thumb}} as |orderStyles|>
+          {{page-edit 
+            page=page
+            imageStyle=orderStyles.imageStyle
+            contentStyle=orderStyles.contentStyle
+            setNumber=orderStyles.setNumber
+            refreshModel=(action "refreshModel")
+          }}
+        </SortOrder>
+      {{/each}}
+    {{else}}
+      {{#unless this.newPage}}
+        <div class="va-outer">
+          <div class="va-inner">
+            <h1>Create your first page</h1><br>
+            <button class="boma-btn add" type="button" {{action "addPage"}}>
+              <FaIcon @icon="plus-square"/>
+              Add Page
+            </button>
+          </div>
+        </div>
+      {{/unless}}
+    {{/if}}
+  </div>
+  {{infinity-loader infinityModel=this.model.pages hideOnInfinity=true}}
+</div>

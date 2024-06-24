@@ -1,0 +1,6 @@
+{{#each this.data as |tag|}}
+	<h4><strong>{{tag.chartTitle}}</strong></h4>
+	{{pie-chart data=tag height="300px" width="1000px"}}
+{{else}}
+	Loading...
+{{/each}}

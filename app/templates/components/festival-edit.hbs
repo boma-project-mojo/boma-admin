@@ -1,0 +1,330 @@
+{{#if this.is_editing_or_new}}
+  <div class="editing box festival">
+    {{#if this.festival.isNew}}
+      <h1>New Festival</h1>
+    {{else}}
+      <h1>Editing {{this.festival.name}}</h1>
+    {{/if}}
+
+    <div class="actions">
+      {{#if this.festival.isNew}}
+        <button class="btn-boma save" disabled={{this.is_saving}} type="button" {{action "saveNew"}}>
+          <FaIcon @icon="check-square"/>
+          {{#if this.is_saving}}
+            Saving
+          {{else}}
+            Save
+          {{/if}}
+        </button>
+        <button class="btn-boma delete" type="button" {{action "discard"}}>
+          <FaIcon @icon="minus-circle"/>
+          Discard
+        </button>
+      {{else}}
+        <button class="btn-boma save" disabled={{this.is_saving}} type="button" {{action "save"}}>
+          <FaIcon @icon="check-square"/>
+          {{#if this.is_saving}}
+            Saving
+          {{else}}
+            Save
+          {{/if}}
+        </button>  
+        <button class="btn-boma delete" type="button" {{action "cancel"}}>
+          <FaIcon @icon="minus-circle"/>
+          Cancel
+        </button>
+      {{/if}}
+    </div>
+
+    <div class="form-wrap">
+      <div class="form-group form-inline">
+        <label>Festival Name</label>
+
+        <Input @type="text" @value={{this.festival.name}} disabled={{this.is_disabled}} class="form-control" />
+        {{#each this.festival.errors.name as |error|}}
+          <span class="error">{{error.message}}</span><br/>
+        {{/each}}
+      </div>
+
+      <div class="form-group form-inline">
+        <label>Bundle ID</label>
+        <Input  @type="text" @value={{this.festival.bundle_id}} disabled={{this.is_disabled}} class="form-control" />
+        {{#each this.festival.errors.bundle_id as |error|}}
+          <span class="error">{{error.message}}</span><br/>
+        {{/each}}
+      </div>
+
+      <div class="form-group">
+        <label style="width:180px;float:left;">Festival dates</label>
+        <table class="not-fixed-width">
+          <tr>
+            <td>
+              <label>Start Date</label>
+              <TdDatetimepicker
+                @locale="en-gb" 
+                @sideBySide="true"
+                @stepping="60" 
+                @date={{this.festival.start_date}}
+                @setDate={{action (mut this.festival.start_date)}}
+                @inline="true"
+              />
+              {{#each this.festival.errors.start_date as |error|}}
+                <span class="error">{{error.message}}</span><br/>
+              {{/each}}
+            </td>
+            <td>
+              <label>End Date</label>
+              <TdDatetimepicker
+                @locale="en-gb" 
+                @sideBySide="true"
+                @stepping="60" 
+                @date={{this.festival.end_date}}
+                @setDate={{action (mut this.festival.end_date)}}
+                @inline="true"
+              />
+              {{#each this.festival.errors.end_date as |error|}}
+                <span class="error">{{error.message}}</span><br/>
+              {{/each}}
+            </td>
+          </tr>
+        </table>
+        
+        
+      </div>
+{{!--         <div class="form-group form-inline">
+        <label>Notification Topic ID</label>
+        {{input type="text" value=festival.fcm_topic_id disabled=is_disabled class="form-control"}}
+        {{#each festival.errors.fcm_topic_id as |error|}}
+          <span class="error">{{error.message}}</span><br/>
+        {{/each}}
+      </div> --}}
+      {{#if this.festival.isNew}}
+        <div class="form-group form-inline">
+          <label>Timezone</label>
+          <PowerSelect @selected={{this.festival.timezone}} @options={{this.timezones}} @searchEnabled={{true}} @onChange={{action (mut this.festival.timezone)}} as |timezone|>
+            {{timezone}}
+          </PowerSelect>
+          {{#each this.festival.errors.timezone as |error|}}
+            <span class="error">{{error.message}}</span><br/>
+          {{/each}}
+        </div>
+        <div class="form-group form-inline">
+          <label>Use act name for event name?</label>
+          
+          {{input type="checkbox" checked=this.festival.use_production_name_for_event_name disabled=this.is_disabled}} 
+        </div>
+      {{/if}}
+
+      <div class="form-group form-inline">
+        <label>List Order</label>
+        <Input @type="text" @ value={{this.festival.list_order}} disabled={{this.is_disabled}} class="form-control" />
+      </div>
+
+      <div class="form-group form-inline">
+        <label>Analysis Enabled?</label>
+        {{input type="checkbox" checked=this.festival.analysis_enabled}} 
+      </div>
+
+      <div class="form-group form-inline">
+        <label>Feedback Enabled?</label>
+        {{input type="checkbox" checked=this.festival.feedback_enabled}} 
+      </div>
+
+      <div class="form-group form-inline">
+        <label>App Schedule Modal Type</label>
+        <label class="radio-btn"> 
+          <input type="radio" name="articleOrEvent" checked={{eq this.festival.schedule_modal_type 'production'}} onclick={{action (mut this.festival.schedule_modal_type) 'production'}} /> Act 
+        </label>
+        <label class="radio-btn"> 
+          <input type="radio" name="articleOrEvent" checked={{eq this.festival.schedule_modal_type 'event'}} onclick={{action (mut this.festival.schedule_modal_type) 'event'}} /> Event
+        </label>
+      </div>
+      {{#each this.festival.errors.schedule_modal_type as |error|}}
+        <span class="error">{{error.message}}</span><br/>
+      {{/each}}
+      <small>When users click on an event in the app schedule you can choose to display information about just the event or the act and all their associated events.</small>
+
+      <br><br>
+
+      <div class="form-group">
+        <label style="width:180px;float:left;">Enable Festival Mode Between..</label>
+        <table class="not-fixed-width">
+          <tr>
+            <td>
+              <label>Enable Festival Mode at</label>
+              <TdDatetimepicker
+                @locale="en-gb" 
+                @sideBySide="true"
+                @stepping="60" 
+                @date={{this.festival.enable_festival_mode_at}}
+                @setDate={{action (mut this.festival.enable_festival_mode_at)}}
+                @inline="true"
+              />
+              {{#each this.festival.errors.enable_festival_mode_at as |error|}}
+                <span class="error">{{error.message}}</span><br/>
+              {{/each}}
+            </td>
+            <td>
+              <label>Disable Festival Mode at</label>
+              <TdDatetimepicker
+                @locale="en-gb" 
+                @sideBySide="true"
+                @stepping="60" 
+                @date={{this.festival.disable_festival_mode_at}}
+                @setDate={{action (mut this.festival.disable_festival_mode_at)}}
+                @inline="true"
+              />
+              {{#each this.festival.errors.disable_festival_mode_at as |error|}}
+                <span class="error">{{error.message}}</span><br/>
+              {{/each}}
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="image-wrap"> 
+      {{#unless this.is_disabled}}
+        <Uploader @model={{this.festival}} @onFileAdd="uploadImage" @name="image"  @dropzone_enabled={{true}}/>
+        {{#each this.festival.errors.image as |error|}}
+          <span class="error">{{error.message}}</span><br/>
+        {{/each}}
+      {{/unless}}
+      {{#unless this.file_is_loaded}}
+        <img class="image-preview medium" src={{this.festival.image_thumb}}/>  <br/>
+      {{/unless}}
+    </div>
+
+  </div> {{!-- .editing --}}
+
+  <hr>
+{{else}}
+  <div class="festival box">
+    <div class="actions">
+      <LinkTo @route="events" @models={{array this.festival.organisation.id this.festival.id}}>
+        <button type="button">
+          <FaIcon @icon="eye"/>
+          View Festival
+        </button>
+      </LinkTo>
+      
+      <br>
+
+      {{#if this.current_user.is_super_admin}}
+        <button class="boma-btn edit" type="button" {{action "edit"}}>
+          <FaIcon @icon="pen-square"/>
+          Edit Festival
+        </button>
+        <br>
+      {{/if}}
+
+      {{#if this.current_user.is_admin_or_super_admin}}
+        {{#if this.generating-pdf}}
+          <button type="button" disabled="true">
+            <FaIcon @icon="universal-access"/>
+            Generating PDF...
+          </button>
+        {{else if this.pdf-url}}
+          <a href="{{this.pdf-url}}" download="festival.pdf" target="_blank" rel="noopener noreferrer">
+            <button type="button">
+              <FaIcon @icon="universal-access"/>  
+              Download PDF
+            </button>
+          </a>
+        {{else}}
+          <button type="button" {{action (action 'getFile' 'pdf')}}>
+            <FaIcon @icon="universal-access"/>
+            Generate PDF
+          </button>
+        {{/if}}
+
+        <br>
+
+        {{#if this.generating-csv}}
+          <button type="button" disabled="true">
+            <FaIcon @icon="table"/>
+            Generating CSV...
+          </button>
+        {{else if this.csv-url}}
+          <a href="{{this.csv-url}}" target="_blank" rel="noopener noreferrer">
+            <button type="button">
+              <FaIcon @icon="table"/>  
+              Download CSV
+            </button>
+          </a>
+        {{else}}
+          <button type="button" {{action (action 'getFile' 'csv')}}>
+            <FaIcon @icon="table"/>
+            Generate CSV
+          </button>
+        {{/if}}
+
+        <br>
+
+        {{#if this.generating-xml}}
+          <button type="button" disabled="true">
+            <FaIcon @icon="code"/>
+            Generating XML...
+          </button>
+        {{else if this.xml-url}}
+          <a href="{{this.xml-url}}" target="_blank" rel="noopener noreferrer">
+            <button type="button">
+              <FaIcon @icon="code"/>  
+              Download XML
+            </button>
+          </a>
+        {{else}}
+          <button type="button" {{action (action 'getFile' 'xml')}}>
+            <FaIcon @icon="code"/>
+            Generate XML
+          </button>
+        {{/if}}
+      {{/if}}
+
+      {{#if this.current_user.is_super_admin}}
+        {{published-state confirm=true resource=this.festival current_user=this.current_user btn_class_name="btn-block"}}      
+        <br>
+      {{/if}}
+    </div>
+
+    <h1>
+      <LinkTo @route="events" @models={{array this.festival.organisation.id this.festival.id}}>
+        {{this.festival.name}}
+       </LinkTo>
+      <span class="tag state published">{{this.festival.aasm_state}}</span>
+    </h1>
+
+    <p>
+      From <strong>{{this.festival.start_date_moment_in_timezone_formatted}}</strong> to <strong>{{this.festival.end_date_moment_in_timezone_formatted}}</strong>
+    </p>
+    <p>
+      Timezone:  {{this.festival.timezone}}
+    </p>
+    <p>
+      Use Production Name for Event Name:  {{this.festival.use_production_name_for_event_name}}
+    </p>
+    {{#if this.festival.list_order}}
+      <p>
+        List Order:  {{this.festival.list_order}}
+      </p>
+    {{/if}}
+    <p>
+      Analysis Enabled:  {{this.festival.analysis_enabled}} 
+      {{#if this.festival.analysis_enabled}}
+        ({{this.festival.schedule_modal_type}})
+      {{/if}}
+    </p>
+    <p>
+      Feedback Enabled:  {{this.festival.feedback_enabled}} 
+    </p>
+    <p>
+      Event schedule modal type {{this.festival.schedule_modal_type}}
+    </p>
+    {{#if this.festival.enable_festival_mode_at}}
+      <p>
+        Festival mode will be enabled between {{this.festival.enable_festival_mode_at_moment_in_timezone_formatted}} and {{this.festival.disable_festival_mode_at_moment_in_timezone_formatted}}
+      </p>
+    {{/if}}
+  </div>  
+
+{{/if}}

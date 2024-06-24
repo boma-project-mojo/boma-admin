@@ -1,0 +1,9 @@
+<div id="search" class="input-super-group">
+  <div class="input-group">
+    <Input @value={{this.query}} class="form-control" placeholder="Search... (min 2 letters)" @enter={{action "doSearch"}}/>
+    <span class="input-group-btn">
+      <button class="btn btn-default btn-success" type="button" {{action "doSearch"}}>Search</button>
+    </span>
+  </div>{{!-- /input-group --}}
+  <span class="clear-input glyphicon glyphicon-remove-circle" {{action "clear"}}></span>
+</div>

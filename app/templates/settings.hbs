@@ -1,0 +1,49 @@
+<div class="flash error">
+
+</div>
+<nav class="navbar navbar-inverse navbar-fixed-top" class="{{this.environment}}">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand">
+        <img src="assets/images/boma-logo.svg">
+      </a>
+    </div>
+    <div id="navbar">
+      <ul class="nav navbar-nav">
+        {{#if this.current_user}}        
+          <li>
+            <LinkTo @route="organisations">All Organisations</LinkTo>
+          </li>   
+{{!--           <li>
+            <a class="bw-btn space-right" {{action 'invalidateSession'}}>Logout</a>
+          </li> --}}
+        {{else}}
+          <a class="navbar-brand">
+            <img src="assets/images/boma-logo.svg" alt="Boma logo">
+          </a>
+        {{/if}}
+      </ul>
+    </div>
+    <div id="header-right">
+      <ul class="nav navbar-nav">
+        <li><a href=""><FaIcon @icon="cog"/></a></li>
+      </ul>
+    </div>
+    {{#if this.isLoadingService.isLoading}}
+      <div id="loading">
+        <FaIcon @icon="cog"/>
+      </div>
+    {{/if}}    
+  </div>
+</nav>
+
+<div class="container-fluid" id="main">
+  <div class="box">
+    <h1>{{this.current_user.name}}</h1>
+    <p>{{this.current_user.email}}</p>
+    <button class="boma-btn add inline" type="button" {{action 'invalidateSession'}}>
+      <FaIcon @icon="sign-out-alt"/>
+      Logout
+    </button>
+  </div>
+</div>

@@ -1,0 +1,101 @@
+<div class="flash error">
+
+</div>
+
+<nav class="navbar navbar-inverse navbar-fixed-top" class="{{this.environment}}">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      {{#if this.current_user}}   
+        <LinkTo @route="organisations" class="navbar-brand">
+          <img src="assets/images/boma-logo.svg" alt="Boma logo">
+        </LinkTo>
+      {{else}}
+        <a class="navbar-brand">
+          <img src="assets/images/boma-logo.svg" alt="Boma logo">
+        </a>
+      {{/if}}  
+    </div>
+    <div id="navbar">
+      <ul class="nav navbar-nav">
+        {{#if this.current_user}}        
+          <li class="white">
+            <LinkTo @route="festivals" @model={{this.model.festival.organisation.id}}>{{this.model.organisation.name}}</LinkTo>
+          </li>
+          {{#if this.current_user.is_admin_or_super_admin}}
+            <li>
+              <LinkTo @route="organisation-articles" @model={{this.model.organisation.id}} @query={{hash article_type=""}}>Organisation <br> Articles</LinkTo>
+            </li>
+          {{/if}}
+          {{#if this.model.organisation.community_articles_enabled}}
+            <li> 
+              {{#if this.current_user.is_admin_or_super_admin}} 
+                <LinkTo @route="organisation-articles" @model={{this.model.organisation.id}} @query={{hash article_type="community_article"}}>Community <br>Articles</LinkTo>
+              {{/if}}
+            </li>
+          {{/if}}
+        {{else}}
+
+        {{/if}}
+      </ul>
+    </div>
+    <div id="header-right">
+      <ul class="nav navbar-nav">
+        {{#if this.current_user.is_super_admin}}
+          {{#unless this.newFestival}}
+            <li>
+              <button class="boma-btn add" type="button" {{action "addFestival"}}>
+                <FaIcon @icon="plus-square"/>
+                Add <br>Festival
+              </button>
+            </li>
+          {{/unless}}
+        {{/if}}
+        <li><LinkTo @route="settings"><FaIcon @icon="cog"/></LinkTo></li>
+      </ul>
+    </div>
+    {{#if this.isLoadingService.isLoading}}
+      <div id="loading">
+        <FaIcon @icon="cog" @spin="true" />
+      </div>
+    {{/if}}    
+  </div>
+</nav>
+
+<div class="container-fluid" id="main">
+  {{#if this.newFestival}}
+    {{festival-edit 
+      festival=this.newFestival
+      resetNewFestival=(action "resetNewFestival")
+      current_user=this.current_user
+      refreshModel=(action "refreshModel")
+      organisation=this.model.organisation
+    }}
+  {{/if}}
+  {{#if this.model}}
+    {{#each this.model.festivals as |festival|}}
+      {{festival-edit 
+        festival=festival 
+        resetNewFestival=(action "resetNewFestival")
+        current_user=this.current_user
+        refreshModel=(action "refreshModel")
+      }}
+    {{/each}}
+  {{else}}
+    {{#unless this.newFestival}}
+      <div class="va-outer">
+        <div class="va-inner">
+          {{#if this.current_user.is_super_admin}}
+            <h1>Create your first festival</h1><br>
+            <button class="boma-btn add" type="button" {{action "addFestival"}}>
+              <FaIcon @icon="plus-square"/>
+              Add Festival
+            </button>
+          {{else}}
+            <h1>You currently have no festivals to manage.</h1><br>
+            <p>If you are expecting to see a festival here then please contact the festival directly or <a href="mailto:hello@boma.community">drop us a line on hello@boma.community</a>.</p>
+          {{/if}}
+        </div>
+      </div>
+    {{/unless}}
+  {{/if}}
+</div>

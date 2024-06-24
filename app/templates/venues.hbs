@@ -1,0 +1,83 @@
+<ApplicationHeader @current_user={{this.current_user}} @festival={{this.model.festival}} @organisation={{this.model.organisation}} @isLoading={{this.isLoading}} as |applicationHeader|>
+  <li>
+    {{#unless this.newVenue}}
+      {{#if this.is_retailer}}
+        <button class="boma-btn add" type="button" {{action "addVenue"}}>
+          <FaIcon @icon="plus-square"/>
+          Add <br>Retailer
+        </button>
+      {{/if}}
+      {{#if this.is_performance_venue}}
+        <button class="boma-btn add" type="button" {{action "addVenue"}}>
+          <FaIcon @icon="plus-square"/>
+          Add <br>Venue
+        </button>
+      {{/if}}
+    {{/unless}}
+  </li>
+  <li id="toggle-filters" {{action (action applicationHeader.toggleFilters)}}><a><FaIcon @icon="filter"/></a></li>
+</ApplicationHeader>
+<div class="container-fluid" id="main">
+  <div id="filters">
+    {{search-and-sort query=this.query refreshModel=(action "refreshModel")}}
+  </div>
+
+  <div class="venues">
+    {{#if this.newVenue}}
+      <div id="new-venue">
+        {{venue-edit 
+          venue=this.newVenue
+          venueType="venueType"
+          resetNewVenue=(action "resetNewVenue")
+          refreshModel=(action "refreshModel")
+          all_tags=this.model.all_tags
+          festival=this.model.festival
+        }}
+      </div>
+    {{/if}}
+    {{#if this.model.venues}}
+      {{#each this.model.venues as |venue index|}}
+        <SortOrder @index={{index}} @model={{venue}} @image_url={{venue.image_thumb}} @columns={{if this.model.festival.require_venue_images 5 1}} as |orderStyles|>
+          {{venue-edit 
+            venue=venue 
+            current_user=this.current_user
+            imageStyle=orderStyles.imageStyle
+            contentStyle=orderStyles.contentStyle
+            setNumber=orderStyles.setNumber
+            refreshModel=(action "refreshModel")
+            all_tags=this.model.all_tags 
+            festival=this.model.festival
+          }}
+        </SortOrder>
+      {{/each}}
+    {{else}}
+      {{#unless this.newVenue}}
+        <div class="va-outer">
+          <div class="va-inner">
+            <h1>Create a
+              {{#if this.is_retailer}}
+                Retailer
+              {{else}}
+                Performance Venue
+              {{/if}}
+            </h1><br>
+            {{#if this.is_retailer}}
+              <button class="boma-btn add" type="button" {{action "addVenue"}}>
+                <FaIcon @icon="plus-square"/>
+                Add Retailer
+              </button>
+            {{/if}}
+            {{#if this.is_performance_venue}}
+              <button class="boma-btn add" type="button" {{action "addVenue"}}>
+                <FaIcon @icon="plus-square"/>
+                Add Performance Venue
+              </button>
+            {{/if}}
+          </div>
+        </div>
+      {{/unless}}
+    {{/if}}
+  </div>
+  {{infinity-loader infinityModel=this.model.venues hideOnInfinity=true loadingText="Loading..."
+  loadedText=""}}
+</div>

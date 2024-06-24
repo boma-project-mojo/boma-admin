@@ -1,0 +1,24 @@
+{{#if (eq this.resource.constructor.modelName "event")}}
+  {{#if this.current_user.is_admin_or_super_admin}}
+    {{#if this.resource.is_published}}
+      <button disabled={{this.settingStateOrNotLocked}} class="boma-btn publish" type="button" {{action "cancel"}}>
+        <FaIcon @icon="minus-circle"/>
+        Cancel
+      </button>
+    {{/if}}
+  {{/if}}
+{{else if (eq this.resource.constructor.modelName "production")}}
+  {{#if this.current_user.is_admin_or_super_admin}}
+    {{#if this.resource.is_published}}
+      <button disabled={{this.settingState}} class="boma-btn publish" type="button" {{action "unpublish"}}>
+        <FaIcon @icon="upload"/>
+        Unpublish
+      </button>  
+    {{else}}
+      <button disabled={{this.settingStateOrNotLocked}} class="boma-btn publish" type="button" {{action "publish"}}>
+        <FaIcon @icon="download"/>
+        Publish
+      </button>
+    {{/if}}
+  {{/if}}
+{{/if}}

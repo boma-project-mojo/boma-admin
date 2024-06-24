@@ -1,0 +1,270 @@
+{{#if this.festival.require_production_images}}
+  <div data-set-number="{{this.setNumber}}" class="image-square toggle-content-wrap" style={{this.imageStyle}}>
+    {{#if this.event.start_time}}
+      <h3 class="event-start-datetime">{{this.event.start_time_moment_in_timezone_formatted}}</h3>
+    {{/if}}
+    {{#if this.event.venue}}
+      <h3 class="event-venue">{{this.event.venue.name_and_subtitle}}</h3>
+    {{/if}}
+    <h3 class="production-name">
+      {{#if this.festival.use_production_name_for_event_name}}
+        {{#each this.event.productions as |p index|}}
+          {{p.name}}{{#unless (eq index (sub this.event.productions.length 1))}}, {{/unless}}
+        {{/each}}
+      {{else}}
+        {{this.event.name}}
+      {{/if}}
+    </h3>
+  </div>
+{{else}}
+  <div data-set-number="{{this.setNumber}}" class="list-item toggle-content-wrap" style={{this.imageStyle}}>
+    <h3 class="production-name left">
+      {{#if this.festival.use_production_name_for_event_name}}
+        {{#each this.event.productions as |p index|}}
+          {{p.name}}{{#unless (eq index (sub this.event.productions.length 1))}}, {{/unless}}
+        {{/each}}
+      {{else}}
+        {{this.event.name}}
+      {{/if}}
+      {{#if this.event.start_time}}
+        <span class="event-start-time">({{this.event.start_time_moment_in_timezone_formatted}}</span>
+      {{/if}}
+      {{#if this.event.venue}}
+        <span class="event-venue-name">{{this.event.venue.name_and_subtitle}})</span>
+      {{/if}}
+    </h3>
+  </div>
+{{/if}}
+<div class="content-wrap" style={{this.contentStyle}}>
+  {{#if this.is_editing_or_new}}
+    <div class="editing event box">
+      {{#if this.event.isNew}}
+        <h1>New Event</h1>
+      {{else}}
+        <h1>Editing Event</h1>
+      {{/if}}
+
+      <div class="actions">
+        <button class="boma-btn save" disabled={{this.is_saving}} type="button" {{action "saveProductionAndEvent"}}>
+          {{#if this.is_saving}}
+            <FaIcon @icon="check-square"/>
+            Saving
+          {{else}}
+            <FaIcon @icon="check-square"/>
+            Save
+          {{/if}}
+        </button>
+          
+        {{#if this.event.isNew}}
+          <button class="boma-btn delete" disabled={{this.is_saving}} type="button" {{action "discard"}}>
+            <FaIcon @icon="minus-circle"/>
+            Discard
+          </button>
+        {{else}}
+
+          <button class="boma-btn delete" disabled={{this.is_saving}} type="button" {{action "cancel"}}>
+            <FaIcon @icon="minus-circle"/>
+            Cancel
+          </button>
+        {{/if}}
+      </div>
+      <div class="form-wrap">
+        {{#unless this.festival.use_production_name_for_event_name}}
+          <div class="form-group form-inline">
+            <label>Event Name</label>
+            <Input  @type="text" @value={{this.event.name}} disabled={{this.is_disabled}} class="form-control" />
+          </div>
+        {{/unless}}
+
+        <div class="form-group form-inline">
+          <label>Event Time</label>
+          {{inline-errors pointer="/data/attributes/events" errors=this.errors}}
+          {{inline-errors pointer="/data/attributes/start_time" errors=this.errors}}
+          <div class="inline-datepicker">
+            <label>Start Time</label> <br>
+              <TdDatetimepicker
+                @id="event-start-time"
+                @locale="en-gb" 
+                @sideBySide="true"
+                @stepping="5" 
+                @minDate={{this.minDate}}
+                @maxDate={{this.maxDate}}
+                @viewDate={{this.event.start_time}}
+                @date={{this.event.start_time}}
+                @setDate={{action (mut this.event.start_time)}}
+                @timeZone={{this.festival.timezone}}
+                @defaultDate={{this.defaultStartDate}}
+                @inline=true
+              />
+          </div>
+          <div class="inline-datepicker">
+            <label>End Time</label> <br>
+
+            <TdDatetimepicker
+              @id="event-end-time"
+              @locale="en-gb" 
+              @sideBySide="true"
+              @stepping="5" 
+              @minDate={{this.minDate}}
+              @maxDate={{this.maxDate}}
+              @viewDate={{this.minDate}}
+              @date={{this.event.end_time}}
+              @setDate={{action (mut this.event.end_time)}}
+              @timeZone={{this.festival.timezone}}
+              @defaultDate={{this.defaultEndDate}}
+              @inline=true
+            />
+          </div>
+        </div>
+        <div class="form-group form-inline">
+          <label>Venue</label>
+          <PowerSelect 
+            @selected={{this.event.venue}} 
+            @options={{this.venues}} 
+            @searchField="name" 
+            @onChange={{action (mut this.event.venue)}} as |venue|>
+            {{venue.name_and_subtitle}}
+          </PowerSelect>
+          {{#if this.event.errors.venue}}
+            {{#each this.event.errors.venue as |error|}}
+              <span class="error">{{error.message}}</span><br/>
+            {{/each}}
+          {{/if}}
+        </div>
+        <div class="form-group form-inline" id="select-production">
+          <label>Act</label>
+          <PowerSelectMultiple
+            @search={{action "doSearchProductions"}}
+            @searchEnabled={{true}}
+            @selected={{this.event.productions}}
+            @onChange={{action (mut this.event.productions)}} as |production|>
+            {{production.name}}
+          </PowerSelectMultiple>
+          {{#if this.event.errors.productions}}
+            {{#each this.event.errors.productions as |error|}}
+              <span class="error">{{error.message}}</span><br/>
+            {{/each}}
+          {{/if}}
+          {{#unless this.showProduction}}
+            <button class="boma-btn add" type="button" {{action "addProduction"}}>
+              <FaIcon @icon="plus-square"/>
+              Add New Act
+            </button>
+          {{/unless}}
+        </div>
+
+      </div> {{!-- .form-wrap --}}
+
+    </div>
+
+    <div class="event-production">
+      <h2 class="clearboth">Act</h2>
+      <hr>
+      {{#each this.event.productions as |production|}}
+        <div class="form-group">
+          {{production-edit 
+            production=production
+            tags=this.tags
+            venues=this.venues 
+            resetNewProduction="resetNewProduction"
+            refreshModel="refreshModel"
+            showEditEvents=false
+            eventsView=true
+            imageStyle=this.productionImageStyle
+            contentStyle=this.productionContentStyle
+          }}
+        </div>
+      {{/each}}
+    </div>
+
+  {{else}}
+    <div class="event box">
+      <span class="tag id subtle">{{this.event.id}}</span>
+      <div class="box-left">
+        <h1>
+          {{#if this.festival.use_production_name_for_event_name}}
+            {{#each this.event.productions as |p index|}}
+              {{p.name}} {{#unless (eq index (sub this.event.productions.length 1))}}, {{/unless}}
+            {{/each}}
+          {{else}}
+            {{this.event.name}}
+          {{/if}}
+          <span class="tag state {{this.event.aasm_state}}">{{this.event.aasm_state}}</span>
+        </h1>
+        <p>{{{this.event.production.description}}}</p>
+
+        <p>
+          <strong>Venue:</strong>
+          {{this.event.venue.name_and_subtitle}}
+          <br>
+          <strong>Start time:</strong>
+          {{#if this.event.start_time}}
+            {{this.event.start_time_moment_in_timezone_formatted}}
+          {{else}}
+            Not set
+          {{/if}}
+          <br>
+          <strong>End time:</strong>
+          {{#if this.event.end_time}}
+            {{this.event.end_time_moment_in_timezone_formatted}}
+          {{else}}
+            Not set
+          {{/if}}
+          <br>
+          <strong>Ticket Link:</strong>
+          {{#if this.event.ticket_link}}
+            <a href="{{this.event.ticket_link}}">{{this.event.ticket_link}}</a>
+          {{else}}
+            <i>Not set.</i>
+          {{/if}}
+          <br>       
+          <strong>Acts:</strong>
+          {{#each this.event.productions as |production|}}
+            {{production.name}}{{#if (not @last)}},{{/if}}
+          {{/each}}
+        </p>
+
+        <strong class="inline-label">Tags:</strong>   
+        {{#each this.event.productions as |production|}}
+          {{#each production.tags as |tag|}}
+            <span class="tag">{{tag.name}} </span>
+          {{/each}}
+        {{else}}
+          <p><i>No tags yet.</i></p>
+        {{/each}}
+      </div>
+
+      <div class="box-right">
+        <img src={{this.event.production.image_medium}}>
+          <div class="actions">
+          {{#unless this.is_disabled}}
+            {{#unless this.event.is_cancelled}}
+              <button class="boma-btn edit" type="button" {{action "edit"}}>
+                <FaIcon @icon="pen-square"/>
+                Edit
+              </button>
+            {{/unless}}
+            {{#if this.event.is_published}}
+              {{published-locked-state 
+                resource=this.event 
+                current_user=this.current_user
+                settingState=this.settingState
+              }}
+            {{/if}}
+            <button class="boma-btn delete" type="button" {{action "delete"}}>
+              <FaIcon @icon="minus-circle"/>
+              Delete
+            </button>
+
+            {{!-- {{published-state resource=event current_user=current_user btn_class_name="btn-block"}} --}}       
+          {{/unless}}
+          <button class="boma-btn close-square" type="button">
+            <FaIcon @icon="window-close"/>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>  
+
+  {{/if}}
+</div>

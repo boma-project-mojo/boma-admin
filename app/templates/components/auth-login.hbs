@@ -1,0 +1,48 @@
+{{#unless this.session.isAuthenticated}}
+  <div class="va-outer">
+    <div id="auth" class="va-inner">
+      <img src="assets/images/boma-logo.svg" id="brand" alt="boma logo">
+      <form {{action 'authenticate' on='submit'}}>
+        <h1>Login</h1><br>
+        {{#if this.errors}}
+          <div class="alert alert-danger">
+            {{#each this.errors as |error|}}
+              {{error}}
+            {{/each}}
+          </div>
+        {{/if}}
+
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-addon"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></div>
+            <Input id='identification' @type="text" @value={{this.identification}} disabled={{this.is_disabled}} class="form-control" placeholder='Enter Login' />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-addon"><span class="glyphicon glyphicon glyphicon-asterisk" aria-hidden="true"></span></div>
+            <Input id='password' @type="password" @value={{this.password}} disabled={{this.is_disabled}} class="form-control" placeholder='Enter Password' />
+          </div>
+        </div>
+
+        <div class="auth-link">{{#link-to route="forgotten-password"}}Forgotten Password{{/link-to}}</div>
+
+        {{#if this.isLoading}}
+          <button class="boma-btn login add" type="submit" disabled>
+            <FaIcon @icon="sign-in-alt"/>
+            Loading...
+          </button>
+        {{else}}
+          <button class="boma-btn login add" type="submit">
+            <FaIcon @icon="sign-in-alt"/>
+            Login
+          </button>
+        {{/if}}
+        
+
+        {{!-- <div id="forgotten-pw">{{#link-to "forgotten-password"}}Forgotten Password?{{/link-to}}</div> --}}
+      </form>
+    </div>  {{!-- .va-inner --}}
+  </div> {{!-- .va-outer --}}
+{{/unless}}

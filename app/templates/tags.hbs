@@ -1,0 +1,56 @@
+<ApplicationHeader @current_user={{this.current_user}} @festival={{this.model.festival}} @organisation={{this.model.organisation}} as |applicationHeader|>
+  {{#unless this.newTag}}
+    <li>
+      <button class="boma-btn add" type="button" {{action "addTag"}}>
+        <FaIcon @icon="plus-square"/>
+        Add <br>Tag
+      </button>
+    </li>
+  {{/unless}}
+  {{!-- <li id="toggle-filters"><a><FaIcon @icon="filter"/></a></li> --}}
+</ApplicationHeader>
+<div class="container-fluid" id="main">
+  <div id="filters">
+    {{search-and-sort query=this.query refreshModel="refreshModel"}}
+  </div>
+
+  <div class="tags">
+    {{#if this.newTag}}
+      <div id="new-tag">
+        {{tag-edit 
+          tag=this.newTag
+          resetNewTag=(action "resetNewTag")
+          refreshModel=(action "refreshModel")
+        }}
+      </div>
+    {{/if}}
+
+    {{#if this.model.tags}}
+      {{#each this.model.tags as |tag index|}}
+        <SortOrder @index={{index}} @model={{tag}} @image_url={{tag.image_thumb}} as |orderStyles|>
+          {{tag-edit 
+            tag=tag
+            imageStyle=orderStyles.imageStyle
+            contentStyle=orderStyles.contentStyle
+            setNumber=orderStyles.setNumber
+            refreshModel=(action "refreshModel")
+          }}
+        </SortOrder>
+      {{/each}}
+    {{else}}
+      {{#unless this.newTag}}
+        <div class="va-outer">
+          <div class="va-inner">
+            <h1>Create your first tag</h1><br>
+            <button class="boma-btn add" type="button" {{action "addTag"}}>
+              <FaIcon @icon="plus-square"/>
+              Add Tag
+            </button>
+          </div>
+        </div>
+      {{/unless}}
+    {{/if}}
+  </div>
+  {{infinity-loader infinityModel=this.model.tags hideOnInfinity=true loadingText="Loading..."
+  loadedText=""}}
+</div>

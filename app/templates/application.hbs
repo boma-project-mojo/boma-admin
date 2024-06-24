@@ -1,0 +1,13 @@
+<div class="ember-view">
+  <div class="env-{{this.environment}} 
+    {{if this.filtersShown "filters-shown"}} 
+    {{(if this.overflowMenuShown "overflow-menu-in")}}
+  ">
+    {{outlet}}
+    {{#if this.isLoading}}
+      <div class="loader">
+        <div class="loader-bar"></div>
+      </div>
+    {{/if}}
+  </div>
+</div>

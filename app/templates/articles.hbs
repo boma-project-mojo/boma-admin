@@ -1,0 +1,84 @@
+<ApplicationHeader @current_user={{this.current_user}} @festival={{this.model.festival}} @organisation={{this.model.organisation}} as |applicationHeader|>
+  {{#unless this.newArticle}}
+    {{log this}}
+    {{#if (not (eq this.article_type 'community_article'))}}
+      <li>
+        <button class="boma-btn add" type="button" {{action "addArticle"}}>
+          <FaIcon @icon="plus-square"/>
+          Add<br> Article
+        </button>
+      </li>
+    {{/if}}
+  {{/unless}}
+  <li id="toggle-filters"><a {{action (action applicationHeader.toggleFilters)}}><FaIcon @icon="filter"/></a></li>
+</ApplicationHeader>
+<div class="container-fluid" id="main">
+  <div id="filters">
+    <div class="filter" id="article-state-filters">
+      <LinkTo @route="articles" @models={{array this.model.festival.organisation.id this.model.festival.id}} @query={{hash aasm_state='published'}}>
+        Published
+      </LinkTo>  | 
+      <LinkTo @route="articles" @models={{array this.model.festival.organisation.id this.model.festival.id}} @query={{hash aasm_state='draft'}}>
+        Unpublished
+      </LinkTo>  |  
+      <LinkTo @route="articles" @models={{array this.model.festival.organisation.id this.model.festival.id}} @query={{hash aasm_state=''}}>
+        All
+      </LinkTo>
+    </div>
+    <div class="filter">
+      <PowerSelect
+        @options={{this.all_article_type}}
+        @searchEnabled={{true}}
+        @searchField="name"
+        @selected={{this.selectedArticleType}}
+        @onChange={{action "setArticleTypeFilter"}} as |at|>
+        {{at.name}}
+      </PowerSelect>
+    </div>
+    {{search-and-sort query=this.query refreshModel=(action "refreshModel")}}
+  </div>
+  <div class="articles">
+    {{#if this.newArticle}}
+      <div id="new-article">
+        {{article-edit 
+          article=this.newArticle
+          resetNewArticle=(action "resetNewArticle")
+          refreshModel=(action "refreshModel")
+          all_tags=this.model.all_tags
+          festival=this.model.festival
+          all_article_types=this.all_article_type
+        }}
+      </div>
+    {{/if}}
+    {{#if this.model.articles}}
+      {{#each this.model.articles as |article index|}}
+        <SortOrder @index={{index}} @model={{article}} @image_url={{article.image_thumb}} as |orderStyles|>
+          {{article-edit 
+            article=article
+            imageStyle=orderStyles.imageStyle
+            contentStyle=orderStyles.contentStyle
+            setNumber=orderStyles.setNumber
+            refreshModel=(action "refreshModel")
+            resetNewArticle=(action "resetNewArticle")
+            all_tags=this.model.all_tags
+            festival=this.model.festival
+            all_article_types=this.all_article_type
+          }}
+        </SortOrder>
+      {{/each}}
+    {{else}}
+      {{#unless this.newArticle}}
+        <div class="va-outer">
+          <div class="va-inner">
+            <h1>Create your first article</h1><br>
+            <button class="boma-btn add" type="button" {{action "addArticle"}}>
+              <FaIcon @icon="plus-square"/>
+              Add Article
+            </button>
+          </div>
+        </div>
+      {{/unless}}
+    {{/if}}
+  </div>
+  {{infinity-loader infinityModel=this.model.articles hideOnInfinity=true}}
+</div>

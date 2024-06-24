@@ -1,0 +1,354 @@
+{{#if this.festival.require_production_images}}
+  <div data-set-number="{{this.setNumber}}" class="image-square toggle-content-wrap" style={{this.imageStyle}}>
+    <h3 class="production-name">{{this.production.name}}</h3>
+     <span class="tag state {{this.production.aasm_state}}">{{this.production.aasm_state}}</span>
+  </div>
+{{else}}
+  <div data-set-number="{{this.setNumber}}" class="list-item toggle-content-wrap" style={{this.imageStyle}}>
+    <h3 class="production-name">
+      {{this.production.name}} 
+      <span class="right tag state {{this.production.aasm_state}}">{{this.production.aasm_state}}</span>
+      <span class="events-count">({{this.production.events.length}} events)</span>
+    </h3>
+  </div>
+{{/if}}
+<div class="{{this.setNumber}} content-wrap {{this.eventsViewClass}}" style={{this.contentStyle}}>
+  {{#if this.production.errors}}
+    <div class="flash in error">
+      Please correct the following errors:
+      <ul>
+        {{#each this.production.errors as |error|}}
+          <li>{{error.message}}</li>
+        {{/each}}
+      </ul>
+    </div>
+  {{/if}}
+  {{#if this.is_editing_or_new}}
+    <div class="editing production box">
+      {{#if this.production.isNew}}
+        <h1>New Act or Installation</h1>
+      {{else}}
+        <h1>Editing {{this.production.name}}</h1>
+      {{/if}}
+
+      <div class="actions">
+        {{#unless this.eventsView}}{{#if this.is_disabled}}
+          <button class="boma-btn delete" type="button" {{action "cancel"}}>
+            <FaIcon @icon="minus-circle"/>
+            Close
+          </button>
+        {{else}}
+          {{#if this.production.isNew}}
+            <button class="boma-btn save" disabled={{this.is_saving}} type="button" {{action "saveEventsAndNewProduction"}}>
+              <FaIcon @icon="check-square"/>
+              {{#if this.is_saving}}
+                Saving
+              {{else}}
+                Save
+              {{/if}}
+            </button>
+            <button class="boma-btn delete" type="button" {{action "discard"}}>
+              <FaIcon @icon="minus-circle"/>
+              Discard
+            </button>
+          {{else}}
+            <button class="boma-btn save" disabled={{this.is_saving}} type="button" {{action "saveEventsAndProduction"}}>
+              <FaIcon @icon="check-square"/>
+              {{#if this.is_saving}}
+                Saving
+              {{else}}
+                Save
+              {{/if}}
+            </button>  
+            <button class="boma-btn delete" type="button" {{action "cancel"}}>
+              <FaIcon @icon="minus-circle"/>
+              Cancel
+            </button>
+          {{/if}}
+        {{/if}}{{/unless}}
+      </div>
+
+      <div class="form-wrap">
+        <div class="form-group form-inline">
+          <label>Act Name</label>
+          <Input @type="text" @value={{this.production.name}} disabled={{this.is_disabled}} class="form-control" />
+        </div>
+
+        <div class="form-group form-inline">
+          <label>
+            Short Description
+            <span class="small">(for printed programme)</span>
+            ({{this.short_description_length}} / 250) 
+          </label>
+          <Textarea @value={{this.production.short_description}} disabled={{this.is_disabled}} class="form-control" />
+          {{!-- {{ck-editor value=production.short_description onChange=(action (mut short_description))}} --}}
+          {{#each this.production.errors.short_description as |error|}}
+            <span class="error">{{error.message}}</span><br/>
+          {{/each}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Description <span class="small">(for app and website)</span> </label>
+          {{#if this.production.is_disabled }}
+            {{{production.description}}}
+          {{else}}
+            {{ck-editor-with-media value=(unbound this.production.description) disabled=(unbound this.production.is_published) cols="80" rows="6" onChange=(action (mut this.production.description))}}
+          {{/if}}
+          {{!-- {{textarea value=production.description cols="80" rows="6" class="form-control"}} --}}
+          {{#each this.production.errors.description as |error|}}
+            <span class="error">{{error.message}}</span><br/>
+          {{/each}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>External Website Link</label>
+          <Input @type="text" @value={{this.production.external_link}} disabled={{this.is_disabled}} class="form-control" />
+          {{#each this.production.errors.external_link as |error|}}
+            <span class="error">{{error.message}}</span><br/>
+          {{/each}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Video Link</label> 
+          <Input @type="text" @value={{this.production.video_link}} disabled={{this.is_disabled}} class="form-control" />
+          {{#each this.production.errors.video_link as |error|}}
+            <span class="error">{{error.message}}</span><br/>
+          {{/each}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Ticket Link</label> 
+          <Input @type="text" @value={{this.production.ticket_link}} disabled={{this.is_disabled}} class="form-control" />
+          {{#each this.production.errors.ticket_link as |error|}}
+            <span class="error">{{error.message}}</span><br/>
+          {{/each}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Tags</label> 
+          {{#if this.is_disabled}}
+            {{#each this.production.tags as |tag|}}
+              {{tag.name}} ({{tag.id}}){{#if (not @last)}},{{/if}}
+            {{/each}}
+          {{else}}
+            <PowerSelectMultiple @selected={{this.production.tags}} @searchField="name" @options={{this.tags}} @onChange={{action (mut this.production.tags)}} as |tag|>
+              {{tag.name}}
+            </PowerSelectMultiple>
+          {{/if}}
+        </div>  
+
+        {{#if this.showEditEvents}}
+          <h2 class="clearboth">
+            Events
+            <button class="boma-btn add" type="button" {{action "addEvent"}}>
+              <FaIcon @icon="plus-square"/>
+              Add Event
+            </button>
+          </h2>
+          
+          {{!-- <h2 class="clearboth">Events</h2> --}}
+          <hr>
+          {{#if this.production.events}}
+            <table>
+              <tr>
+                {{#unless this.festival.use_production_name_for_event_name}}
+                  <th>Name</th>
+                {{/unless}}
+                <th>Starts</th>
+                <th>Ends</th>
+                <th>Venue</th>
+                <th class="table-actions"></th>
+              </tr>
+
+              {{#each this.production.events as |event|}}
+                {{production-event 
+                  festival=this.festival
+                  event=event 
+                  production=this.production
+                  venues=this.venues 
+                  current_user=this.current_user
+                  timezone=this.festival.timezone
+                  minDate=this.festival.start_date
+                  maxDate=this.festival.end_date
+                  saveEvent=(action "saveEvent")
+                }}
+              {{/each}}
+            </table>
+          {{else}}
+            <p><a {{action "addEvent"}}><i>Add Event</i></a></p>
+          {{/if}}
+          
+        {{/if}}
+
+      </div>
+
+      <div class="image-wrap">
+        {{#unless this.is_disabled}}
+          <Uploader @model={{this.production}} @onFileAdd="uploadImage" @name="image" @dropzone_enabled={{true}}/>
+          {{#each this.production.errors.image as |error|}}
+            <span class="error">{{error.message}}</span><br/>
+          {{/each}}
+        {{/unless}}
+        {{#unless this.file_is_loaded}}
+          <img class="image-preview medium" src={{this.production.image_thumb}}/>  <br/> <br/>
+        {{/unless}}
+      </div>
+
+    </div> {{!-- .editing --}}
+
+  {{else}}
+    {{!-- Starting Show view... --}}
+
+    <div class="production box">
+      <span class="tag id subtle">{{this.production.id}}</span>
+      <div class="box-left">
+
+        <h1>
+          {{this.production.name}}
+          <span class="tag state {{this.production.aasm_state}}">{{this.production.aasm_state}}</span>
+        </h1>
+
+        {{#if this.production.description}}
+          <p>
+            {{{this.production.description}}}   
+          </p>
+        {{/if}}
+
+        <strong>Short Description:</strong>
+        {{#if this.production.short_description}}
+          <p>
+            {{{this.production.short_description}}}   
+          </p>
+        {{else}}
+          <i>Not Set</i>
+        {{/if}}
+
+        <p>
+          <strong>External Link:</strong>
+          {{#if this.production.external_link}}
+            <a href="{{this.production.external_link}}">{{this.production.external_link}}</a>
+          {{else}}
+            <i>Not set.</i>
+          {{/if}}
+
+          <br>
+          
+          <strong>Video Link</strong>
+          {{#if this.production.video_link}}
+            <a href="{{this.production.video_link}}">{{this.production.video_link}}</a>
+          {{else}}
+            <i>Not set.</i>
+          {{/if}}
+
+          <br>
+
+          <strong>Ticket Link:</strong>
+          {{#if this.production.ticket_link}}
+            <a href="{{this.production.ticket_link}}">{{this.production.ticket_link}}</a>
+          {{else}}
+            <i>Not set.</i>
+          {{/if}}
+        </p>
+
+        <p>
+          {{#each this.production.tags as |tag|}}
+            <span class="tag">{{tag.name}}</span>
+          {{/each}}
+          {{#each this.production.errors.tags as |error|}}
+            <span class="error">{{error.message}}</span><br/>
+          {{/each}}           
+        </p>
+
+        
+
+      </div>
+
+      {{#unless this.eventsView}}
+        <div class="production-events-wrap">
+          <h2>
+            Events
+            <button class="boma-btn add right" type="button" {{action "addEvent"}}>
+              <FaIcon @icon="plus-square"/>
+              Add Event
+            </button>
+          </h2>
+          <hr>
+          {{#if this.production.events}}
+            <table>
+              <tr>
+                {{#unless this.festival.use_production_name_for_event_name}}
+                  <th>Name</th>
+                {{/unless}}
+                <th>Starts</th>
+                <th>Ends</th>
+                <th>Venue</th>
+                <th class="table-actions"></th>
+              </tr>
+              {{#each this.production.events as |event|}}
+                {{production-event 
+                  event=event 
+                  festival=this.festival
+                  venues=this.venues 
+                  current_user=this.current_user
+                  minDate=this.festival.start_date
+                  maxDate=this.festival.end_date
+                  timezone=this.festival.timezone
+                  saveEvent=(action "saveEvent")
+                  use_production_name_for_event_name=this.festival.use_production_name_for_event_name
+                }}
+              {{/each}}
+            </table>
+          {{else}}
+            <p><a {{action "addEvent"}}><i>Add Event</i></a></p>
+          {{/if}}
+        </div>
+      {{/unless}}
+
+      <div class="box-right">
+        <img src={{this.production.image_medium}}>
+        <div class="actions">
+          {{#unless this.is_events_view_and_is_published_or_locked}}
+            {{#if this.is_disabled}}
+              {{#unless this.eventsView}}
+                <button class="boma-btn edit" type="button" {{action "edit"}}>Edit</button>
+              {{/unless}}
+            {{else}} 
+              <button class="boma-btn edit" type="button" {{action "edit"}}>
+                <FaIcon @icon="pen-square"/>
+                Edit
+              </button>
+              {{#unless this.eventsView}}
+                <button class="boma-btn delete" type="button" {{action "delete"}}>
+                  <FaIcon @icon="minus-circle"/>
+                  Delete
+                </button>      
+              {{/unless}}
+              {{locked-state 
+                resource=this.production 
+                current_user=this.current_user
+                settingState=this.settingState
+              }}
+              {{#unless this.eventsView}}
+                {{published-locked-state 
+                  resource=this.production 
+                  current_user=this.current_user
+                  settingState=this.settingState
+                }}
+              {{/unless}}
+            {{/if}}
+          {{/unless}}
+          {{#unless this.eventsView}}
+            <button class="boma-btn close-square" type="button">
+              <FaIcon @icon="window-close"/>
+              Close
+            </button>
+          {{/unless}}
+        </div>
+      </div>
+
+    </div> {{!-- .production --}}
+    
+    {{!-- Ending Show view... --}}
+
+  {{/if}}
+</div>

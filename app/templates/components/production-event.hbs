@@ -1,0 +1,140 @@
+{{#if this.is_editing_or_new}}
+  <tr>
+    {{#unless this.festival.use_production_name_for_event_name}}
+      <td>
+        <Input @type="text" @value={{this.event.name}} class="form-control" />
+      </td>
+    {{/unless}}
+    <td>
+      <TdDatetimepicker
+        @id="event-proudction__start-time"
+        @locale="en-gb" 
+        @sideBySide={{true}}
+        @stepping="5" 
+        @minDate={{this.minDate}}
+        @maxDate={{this.maxDate}}
+        @viewDate={{this.event.start_time}}
+        @date={{this.event.start_time}}
+        @setDate={{action (mut this.event.start_time)}}
+        @timeZone={{this.festival.timezone}}
+        @toolbarPlacement={{this.widgetPositioning}} 
+        @defaultDate={{this.defaultStartDate}}
+        @inline={{false}}
+      />
+
+      {{#each this.event.errors.start_time as |error|}}
+          <span class="error">{{error.message}}</span><br/>
+      {{/each}}
+   </td>
+   <td>
+      <TdDatetimepicker
+        @id="event-proudction__end-time"
+        @locale="en-gb" 
+        @sideBySide="true"
+        @stepping="5" 
+        @minDate={{this.minDate}}
+        @maxDate={{this.maxDate}}
+        @viewDate={{this.event.end_time}}
+        @date={{this.event.end_time}}
+        @setDate={{action (mut this.event.end_time)}}
+        @timeZone={{this.festival.timezone}}
+        @toolbarPlacement={{this.widgetPositioning}} 
+        @defaultDate={{this.defaultEndDate}}
+        @inline={{false}}
+      />
+      {{#each this.event.errors.end_time as |error|}}
+          <span class="error">{{error.message}}</span><br/>
+      {{/each}}
+    </td>
+    <td>
+      <PowerSelect
+        @selected={{this.selectedVenue}} 
+        @options={{this.venues}} 
+        @searchField="name" 
+        @onChange={{action (mut this.event.venue)}} as |venue|>
+        {{venue.name_and_subtitle}}
+      </PowerSelect>
+      {{#each this.event.errors.venue as |error|}}
+          <span class="error">{{error.message}}</span><br/>
+      {{/each}}
+    </td>
+    <td>
+      {{#if this.event.isNew}}
+        {{#unless this.production.isNew}}
+          <button class="boma-btn save" disabled={{this.is_saving}} type="button" {{action "saveEvent"}}>
+            <FaIcon @icon="check-square"/>
+            {{#if this.is_saving}}
+              Saving
+            {{else}}
+              Save
+            {{/if}}
+          </button>  
+        {{/unless}}
+        <button class="boma-btn delete" type="button" {{action "discard"}}>
+          <FaIcon @icon="minus-circle"/>
+          Discard
+        </button>
+      {{else}}
+        <button class="boma-btn save" disabled={{this.is_saving}} type="button" {{action "saveEvent"}}>
+          <FaIcon @icon="check-square"/>
+          {{#if this.is_saving}}
+            Saving
+          {{else}}
+            Save
+          {{/if}}
+        </button>    
+        <button class="boma-btn delete" type="button" {{action "cancel"}}>
+          <FaIcon @icon="minus-circle"/>
+          Cancel
+        </button>
+      {{/if}}
+    </td>
+  </tr>
+{{else}}
+  <tr data-event-id="{{this.event.id}}" class="{{if this.event.is_cancelled "cancelled"}}">
+    {{#unless this.festival.use_production_name_for_event_name}}
+      <td>
+        {{this.event.name}}
+      </td>
+    {{/unless}}
+    <td>
+      {{#if this.event.start_time}}
+        {{this.event.start_time_moment_in_timezone_formatted}}
+      {{else}}
+        Not set
+      {{/if}}
+    </td>
+    <td>
+      {{#if this.event.end_time}}
+        {{this.event.end_time_moment_in_timezone_formatted}}
+      {{else}}
+        Not set
+      {{/if}}
+    </td>
+    <td>{{this.event.venue.name_and_subtitle}}</td>
+    {{#unless this.is_disabled}}
+      <td>
+        {{#unless this.event.is_cancelled}}
+          <button class="boma-btn edit" type="button" {{action "edit"}}>
+            <FaIcon @icon="pen-square"/>
+            Edit
+          </button>
+        {{/unless}}
+        {{#if this.event.is_published}}
+          <button disabled={{this.settingStateOrNotLocked}} class="boma-btn publish" type="button" {{action "cancelEvent"}}>
+            <FaIcon @icon="minus-circle"/>
+            Cancel Event
+          </button>
+        {{else}}
+          <button class="boma-btn delete" type="button" {{action "delete"}}>
+            <FaIcon @icon="minus-circle"/>
+            Delete
+          </button>
+        {{/if}}
+        {{!-- {{published-state resource=event current_user=current_user}} --}}
+      </td>
+    {{/unless}}
+  </tr>
+      
+
+{{/if}}

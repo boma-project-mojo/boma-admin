@@ -1,0 +1,41 @@
+<div data-test-survey-question-wrap class="survey__question">
+	{{#if this.is_editing_or_new}}
+		<div class="form-wrap">
+			<h4>Question {{this.indexForUI}}</h4>
+			<div class="form-group">
+			  <label>Question</label>
+			  <Input @type="text" @value={{this.question.question_text}} class="form-control"/>
+			  {{inline-errors pointer="/data/attributes/question_text" errors=this.errors}}
+			</div>
+
+			<div class="form-group">
+				<label>Answers</label>
+
+				<div class="survey__answers">
+					{{#each this.question.answers as |answer index|}}
+				  	<EditAnswer 
+				  		@question={{this.question}} 
+				  		@index={{index}} 
+				  		@is_editing_or_new={{this.is_editing_or_new}} 
+				  		@answer={{answer}} 
+				  	/>
+				  {{/each}}
+				  <button data-test-create-new-answer class="boma-btn add" type="button" {{action "newAnswer"}}>
+				    <FaIcon @icon="plus-square"/>
+				    Create Answer
+				  </button>
+			  </div>
+
+			  
+		  </div> 
+		</div>
+	{{else}}
+		<p>{{this.question.question_text}}</p>
+		{{#each this.question.answers as |answer index|}}
+			<EditAnswer 
+	  		@is_editing_or_new={{this.is_editing_or_new}} 
+	  		@answer={{answer}} 
+	  	/>
+		{{/each}}
+	{{/if}}
+</div>

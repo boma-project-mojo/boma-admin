@@ -1,0 +1,13 @@
+{{#if this.current_user.is_admin_or_super_admin}}
+    {{#if this.resource.is_locked}}
+      <button disabled={{this.settingStateOrPublished}} class="boma-btn lock" type="button" {{action "unlock"}}>
+        <FaIcon @icon="unlock"/>
+        Unlock
+      </button>  
+    {{else}}
+      <button disabled={{this.settingState}} class="boma-btn lock" type="button" {{action "lock"}}>
+        <FaIcon @icon="lock"/>
+        Lock
+      </button>
+    {{/if}}
+{{/if}}

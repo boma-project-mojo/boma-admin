@@ -1,0 +1,20 @@
+<div id="filter" class="input-super-group">
+  <div class="input-group">   
+    <PowerSelect
+      @placeholder={{this.placeholder}}
+      @options={{this.options}}
+      @searchField={{this.searchField}}
+      @onChange={{(action 'setSelected')}}
+      @searchEnabled={{true}}
+      @selected={{this.selected}} as |option|>
+      {{#if (eq this.searchField "name_and_subtitle")}}
+        <strong>{{option.name_and_subtitle}}</strong>
+      {{else}}
+        <strong>{{option.name}}</strong>
+      {{/if}}
+    </PowerSelect>
+  </div>{{!-- /input-group --}}
+  <a class="pointer" {{action "clear"}}>
+    <span class="clear-input glyphicon glyphicon-remove-circle"></span>
+  </a>
+</div>

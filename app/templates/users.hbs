@@ -1,0 +1,50 @@
+<ApplicationHeader @current_user={{this.current_user}} @festival={{this.model.festival}} @organisation={{this.model.organisation}}>
+  {{#unless this.newUser}}
+    <li>
+      <button class="boma-btn add" type="button" {{action "addUser"}}>
+        <FaIcon @icon="plus-square"/>
+        Add <br>User
+      </button>
+    </li>
+  {{/unless}}
+  <li id="toggle-filters"><a><FaIcon @icon="filter"/></a></li>
+</ApplicationHeader>
+<div class="container-fluid" id="main">
+  <div id="filters">
+    {{search-and-sort query=this.query refreshModel=(action "refreshModel")}}
+  </div>
+
+  {{#if this.newUser}}
+    {{user-edit 
+      user=this.newUser
+      resetNewUser=(action "resetNewUser")
+      refreshModel=(action "refreshModel")
+      venues=this.venues
+      festival=this.model.festival
+    }}
+  {{/if}}
+
+  <div class="row">
+    {{#each this.model.users as |user|}}
+      <div class="col-lg-6 col-md-12">
+        {{user-edit user=user venues=this.venues festival=this.model.festival}}
+      </div>
+    {{else}}
+      {{#unless this.newUser}}
+        <div class="va-outer">
+          <div class="va-inner">
+            <h1>Add a user</h1><br>
+            <button class="boma-btn add" type="button" {{action "addUser"}}>
+              <FaIcon @icon="plus-square"/>
+              Add User
+            </button>
+          </div>
+        </div>
+      {{/unless}}
+
+    {{/each}}
+  </div>
+
+  {{infinity-loader infinityModel=this.model.users hideOnInfinity=true loadingText="Loading..."
+  loadedText=""}}
+</div>

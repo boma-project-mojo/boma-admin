@@ -1,0 +1,139 @@
+{{#if this.is_editing_or_new}}
+  <div class="editing box user">
+    {{#if this.user.isNew}}
+      <h1>New User</h1>
+    {{else}}
+      <h1>Editing User #{{this.user.id}}</h1>
+    {{/if}}
+
+    <div class="actions">
+      {{#if this.user.isNew}}
+        <button class="boma-btn save" type="button" {{action "saveNew"}}>
+          <FaIcon @icon="check-square"/>
+          Save
+        </button>
+        <button class="boma-btn delete" type="button" {{action "discard"}}>
+          <FaIcon @icon="minus-circle"/>
+          Discard
+        </button>
+      {{else}}
+        <button class="boma-btn save" type="button" {{action "save"}}>
+         <FaIcon @icon="check-square"/>
+          Save
+        </button>  
+        <button class="boma-btn delete" type="button" {{action "cancel"}}>
+          <FaIcon @icon="minus-circle"/>
+          Cancel
+        </button>
+        {{#unless this.user.is_active}}
+          {{#if this.user.is_invited}}
+            <button class="boma-btn" type="button" {{action "sendInvite"}}>
+              <FaIcon @icon="paper-plane"/>
+              Resend Invite
+            </button>      
+          {{else}}
+            <button class="boma-btn" type="button" {{action "sendInvite"}}>
+              <FaIcon @icon="paper-plane"/>
+              Send Invite
+            </button>      
+          {{/if}}
+        {{/unless}}
+      {{/if}}
+    </div>
+
+    <div class="form-wrap">
+      <div class="form-group form-inline">
+        <label>Name</label>
+        <Input @type="text" @value={{this.user.name}} class="form-control"/>
+        {{inline-errors pointer="/data/attributes/name" errors=this.errors}}
+      </div>
+      <div class="form-group form-inline">
+        <label>Email</label>
+        <Input @type="text" @value={{this.user.email}} class="form-control"/>
+        {{inline-errors pointer="/data/attributes/email" errors=this.errors}}
+      </div>    
+      <div class="form-group form-inline">
+        <label>Password</label>
+        <Input @type="password" @value={{this.user.password}} class="form-control"/>
+        {{inline-errors pointer="/data/attributes/password" errors=this.errors}}
+      </div>
+      <div class="form-group form-inline">
+        <label>Current State</label>
+        {{this.user.aasm_state}}
+        {{#if this.user.is_invited}}
+          {{moment-format this.user.reset_password_sent_at "MMM Do YY h:mm a"}}
+        {{/if}}
+      </div>    
+      <div class="form-group form-inline">
+        <label>Venue Permissions</label>
+        <PowerSelectMultiple @selected={{this.selectedVenuePermissions}} @searchField="name" @options={{this.venues}} @onChange={{action (mut this.selectedVenuePermissions)}} as |venue|>
+          {{venue.name_and_subtitle}}
+        </PowerSelectMultiple>
+      </div>
+      <div class="form-group form-inline">
+        <label>Festival Admin</label>           
+        {{input type="checkbox" checked=this.user.is_festival_admin disabled=this.is_disabled}} 
+        <small>Check this box to enable this user to edit all aspects of this festival</small>
+      </div>
+    </div>
+
+  </div> {{!-- .editing --}}
+
+{{else}}
+  <div class="user box">
+    <div class="actions">
+      <button class="boma-btn edit" type="button" {{action "edit"}}>
+        <FaIcon @icon="pen-square"/>
+        Edit
+      </button>
+      <button class="boma-btn delete" type="button" {{action "delete"}}>
+        <FaIcon @icon="minus-circle"/>
+        Delete User
+      </button>
+      {{#unless this.user.is_active}}
+        {{#if this.user.is_invited}}
+          <button class="boma-btn" type="button" {{action "sendInvite"}}>
+            <FaIcon @icon="paper-plane"/>
+            Resend Invite
+          </button>      
+        {{else}}
+          <button class="boma-btn" type="button" {{action "sendInvite"}}>
+            <FaIcon @icon="paper-plane"/>
+            Send Invite
+          </button>      
+        {{/if}}
+      {{/unless}}
+    </div>    
+    
+    <h1>
+      {{this.user.name}}
+      <span class="tag state {{this.user.aasm_state}}">{{this.user.aasm_state}}</span>
+    </h1>
+    <p>
+      <strong>Email:</strong>
+      {{this.user.email}}
+    </p>
+    <p>
+      <strong>State:</strong>
+      {{this.user.aasm_state}}
+      {{#if this.user.is_invited}}
+        {{moment-format this.user.reset_password_sent_at "MMM Do YY h:mm a"}}
+      {{/if}}
+    </p>
+
+    <p>
+      <strong>Venue Permissions:</strong>
+      {{#if this.selectedVenuePermissions}}
+        {{#each this.selectedVenuePermissions as |role|}}
+          {{role.venue_name}} ({{role.festival_name}}){{#if (not (eq role this.selectedVenuePermissions.lastObject))}},{{/if}}
+        {{/each}}
+      {{else}}
+        <i>Not set.</i>
+      {{/if}}
+    </p>
+    <p>
+      <strong>Is Festival Admin:</strong>
+      {{this.user.is_festival_admin}}
+    </p>
+  </div> {{!-- .production --}}
+{{/if}}

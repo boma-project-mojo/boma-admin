@@ -1,0 +1,247 @@
+<div data-set-number="{{this.setNumber}}" class="image-square toggle-content-wrap" style={{this.imageStyle}}>
+  {{#if this.event.start_time}}
+    <h3 class="event-start-datetime">{{moment-format this.event.start_time "Do MMM 'YY @ HH:mm"}}</h3>
+  {{/if}}
+  {{#if this.event.venue}}
+    <h3 class="event-venue">{{this.event.venue.name}}</h3>
+  {{/if}}
+  <h3 class="production-name">{{this.event.name}}</h3>
+  <div class="box-top-right">
+    {{#if this.event.creator_has_publisher_token}}
+      <span class="tag publisher">Publisher</span>
+    {{/if}}
+    {{#if (not (eq this.event.total_preferences 0))}}
+      <div class="total-preference">
+        <FaIcon @icon="heart"/>
+        {{this.event.total_preferences}}
+      </div>
+    {{/if}}
+  </div>
+  {{#if this.event.address}}
+    <img class="creator-avatar" src="https://avatars.dicebear.com/api/human/{{this.event.address}}.svg?mood[]=happy"/>
+  {{/if}}
+</div>
+<div class="content-wrap" style={{this.contentStyle}}>
+  {{#if this.is_editing}}
+    <div class="editing community-event box">
+      <h1>Editing Event</h1>
+      <div class="actions">
+        <button class="boma-btn save" disabled={{this.is_saving}} type="button" {{action "saveCommunityEvent"}}>
+          {{#if this.is_saving}}
+            <FaIcon @icon="check-square"/>
+            Saving
+          {{else}}
+            <FaIcon @icon="check-square"/>
+            Save
+          {{/if}}
+        </button>
+
+        <button class="boma-btn delete" disabled={{this.is_saving}} type="button" {{action "cancel"}}>
+          <FaIcon @icon="minus-circle"/>
+          Cancel
+        </button>
+      </div>
+      <div class="form-wrap">
+        <div class="form-group form-inline">
+          <label>Event Name</label>
+          <Input @type="text" @value={{this.event.name}} disabled={{this.is_disabled}} class="form-control"/>
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Description <span class="small">(for app and website)</span> </label>
+          {{#if this.event.is_disabled }}
+            {{{this.production.description}}}
+          {{else}}
+            {{ck-editor-with-media value=(unbound this.event.description) disabled=(unbound this.event.is_published) cols="80" rows="6" onChange=(action (mut this.event.description))}}
+          {{/if}}
+          {{#each this.event.errors.description as |error|}}
+            <span class="error">{{error.message}}</span><br>
+          {{/each}}
+        </div>
+
+
+        <div class="form-group form-inline">
+          <label>Event Time</label>
+          <div class="inline-datepicker">
+            <label>Start Time</label> <br>
+            <TdDatetimepicker
+              @locale="en-gb" 
+              @sideBySide="true"
+              @stepping="5" 
+              @minDate={{this.minDate}}
+              @maxDate={{this.maxDate}}
+              @viewDate={{this.minDate}}
+              @date={{this.event.start_time}}
+              @setDate={{action (mut this.event.start_time)}}
+              @timeZone={{this.festival.timezone}}
+            />
+            {{#each this.event.errors.production as |error|}}
+              {{#if error.start_time}}
+                <span class="error">{{error.start_time}}</span><br>
+              {{/if}}
+            {{/each}}
+          </div>
+
+          <div class="inline-datepicker">
+            <label>End Time</label> <br>
+            <TdDatetimepicker
+              @locale="en-gb" 
+              @sideBySide="true"
+              @stepping="5" 
+              @minDate={{this.minDate}}
+              @maxDate={{this.maxDate}}
+              @viewDate={{this.minDate}}
+              @date={{this.event.end_time}}
+              @setDate={{action (mut this.event.end_time)}}
+              @timeZone={{this.festival.timezone}}
+            />
+            {{#each this.event.errors.production as |error|}}
+              {{#if error.start_time}}
+                <span class="error">{{error.end_time}}</span><br>
+              {{/if}}
+            {{/each}}
+          </div>
+        </div>
+
+        <div class="form-group form-inline">
+          <label>External Link</label>
+          <Input @type="text" @value={{this.event.external_link}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/external_link" errors=this.errors}}
+        </div>
+
+        <div class="form-group form-inline checkbox">
+          <input 
+            type="checkbox" 
+            checked={{this.event.audio_stream}} 
+            onclick={{action (mut this.event.audio_stream) value='target.checked'}} />
+          <label>Check this box if the External link is an Audio Stream and you want the audio player shown in the app</label>          
+        </div>
+
+        <div class="form-group form-inline checkbox">
+          <input 
+            type="checkbox" 
+            checked={{this.event.private_event}} 
+            onclick={{action (mut this.event.private_event) value='target.checked'}} />
+          <label>Private event?</label>          
+        </div>
+
+        <div class="form-group form-inline checkbox">
+          <input 
+            type="checkbox" 
+            checked={{this.event.featured}} 
+            onclick={{action (mut this.event.featured) value='target.checked'}} />
+          <label>Featured event?</label>
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Venue</label>
+          <PowerSelect @selected={{this.selectedVenue}} @options={{this.venues}} @searchField="name" @onChange={{action (mut this.event.venue)}} as |venue|>
+            {{venue.name}}
+          </PowerSelect>
+          {{#if this.event.errors.venue}}
+            {{#each this.event.errors.venue as |error|}}
+              <span class="error">{{error.message}}</span><br>
+            {{/each}}
+          {{/if}}
+        </div>   
+      </div> {{!-- .form-wrap --}}
+
+      <div class="image-wrap">
+        {{#unless this.is_disabled}}
+          <Uploader @model={{this.production}} @onFileAdd="uploadImage" @name="image" @dropzone_enabled={{true}}/>
+          {{#each this.production.errors.image as |error|}}
+            <span class="error">{{error.message}}</span><br>
+          {{/each}}
+        {{/unless}}
+        {{#unless this.file_is_loaded}}
+          <img class="image-preview medium" src={{this.event.image_thumb}} alt="image preview">  <br> <br>
+        {{/unless}}
+      </div>
+    </div>
+  {{else}}
+    <div class="event box">
+      <div class="box-left">
+        <h1>
+          {{this.event.name}} 
+          <span class="tag state {{this.event.aasm_state}}">{{this.event.aasm_state}}</span>
+          {{#if (not (eq this.event.total_preferences 0))}}
+            <div class="total-preference">
+              <FaIcon @icon="heart"/>
+              {{this.event.total_preferences}}
+            </div>
+          {{/if}}
+        </h1>
+        <p>{{{this.event.description}}}</p>
+
+        <p>
+          <strong>Venue:</strong>
+          {{this.event.venue.name}}
+          <br>
+          <strong>Start time:</strong>
+          {{#if this.event.start_time}}
+            {{moment-format this.event.start_time "MMM Do YYYY HH:mm"}}
+          {{else}}
+            Not set
+          {{/if}}
+          <br>
+          <strong>End time:</strong>
+          {{#if this.event.end_time}}
+            {{moment-format this.event.end_time "MMM Do YYYY HH:mm"}}
+          {{else}}
+            Not set
+          {{/if}}
+          <br>
+          <strong>External Link:</strong>
+          {{#if this.event.external_link}}
+            <a href={{this.event.external_link}} target="_blank" rel="noopener noreferrer">{{this.event.external_link}}</a>
+          {{else}}
+            Not set
+          {{/if}}
+          <br>
+          <strong>Audio Stream:</strong>
+          {{#if this.event.audio_stream}}
+            <FaIcon @icon="check"/>
+          {{else}}
+            <FaIcon @icon="times"/>
+          {{/if}}
+          <br>
+          <strong>Private Event:</strong>
+          {{#if this.event.private_event}}
+            <FaIcon @icon="check"/>
+          {{else}}
+            <FaIcon @icon="times"/>
+          {{/if}}
+          <br>
+          <strong>Featured Event:</strong>
+          {{#if this.event.featured}}
+            <FaIcon @icon="check"/>
+          {{else}}
+            <FaIcon @icon="times"/>
+          {{/if}}
+        </p>
+      </div>
+
+      <div class="box-right">
+        <img src={{this.event.image_medium}} class="Image">
+        <div class="actions">
+          {{#unless this.is_disabled}}
+            <button class="boma-btn edit" type="button" {{action "edit"}}>
+              <FaIcon @icon="pen-square"/>
+              Edit
+            </button>
+            <button class="boma-btn delete" type="button" {{action "delete"}}>
+              <FaIcon @icon="minus-circle"/>
+              Delete
+            </button>
+
+            {{published-state resource=this.event current_user=this.current_user btn_class_name="btn-block"}}      
+          {{/unless}}
+          <button class="boma-btn close-square" type="button">
+            <FaIcon @icon="window-close"/>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>  
+  {{/if}}
+</div>

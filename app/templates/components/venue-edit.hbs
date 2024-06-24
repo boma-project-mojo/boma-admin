@@ -1,0 +1,309 @@
+{{#if this.festival.require_venue_images}}
+  <div data-set-number="{{this.setNumber}}" class="image-square toggle-content-wrap" style={{this.imageStyle}}>
+    {{!-- <h3 class="venue-name">{{venue.name}}</h3> --}}
+    <h3 class="venue-name">{{this.venue.name_and_subtitle}}</h3>
+  </div>
+{{else}}
+  <div data-set-number="{{this.setNumber}}" class="list-item toggle-content-wrap" style={{this.imageStyle}}>
+    {{!-- <h3 class="venue-name">{{venue.name}}</h3> --}}
+    <h3 class="venue-name">{{this.venue.name_and_subtitle}}</h3>
+  </div>
+{{/if}}
+<div class="content-wrap" style={{this.contentStyle}}>
+  {{#if this.is_editing_or_new}}
+    <div class="editing venue box">
+      {{#if this.venue.isNew}}
+        {{#if this.venue.is_retailer}}
+          <h1>New Retailer</h1>
+        {{else}}
+          <h1>New Performance Venue</h1>
+        {{/if}}
+      {{else}}
+        <h1>Editing {{this.venue.name_and_subtitle}}</h1>
+      {{/if}}
+
+      <div class="actions">
+        {{#if this.venue.isNew}}
+          <button class="boma-btn save" disabled={{this.is_saving}} type="button" {{action "saveNew"}}>
+            <FaIcon @icon="pen-square"/>
+            {{#if this.is_saving}}
+              Saving
+            {{else}}
+              Save
+            {{/if}}
+          </button>  
+          <button class="boma-btn delete" type="button" {{action "discard"}}>
+            <FaIcon @icon="minus-circle"/>
+            Discard
+          </button>
+        {{else}}
+          <button class="boma-btn save" disabled={{this.is_saving}} type="button" {{action "save"}}>
+            <FaIcon @icon="pen-square"/>
+            {{#if this.is_saving}}
+              Saving
+            {{else}}
+              Save
+            {{/if}}
+          </button>   
+          <button class="boma-btn delete" type="button" {{action "cancel"}}>
+            <FaIcon @icon="minus-circle"/>
+            Cancel
+          </button>
+        {{/if}}
+      </div>
+
+      <div class="form-wrap">
+
+        <div class="form-group form-inline">
+          <label>Name</label>
+          <Input @type="text" @value={{this.venue.name}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/name" errors=this.errors}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Subtitle</label>
+          <Input @type="text" @value={{this.venue.subtitle}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/subtitle" errors=this.errors}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Description</label>
+          {{ck-editor-with-media value=(unbound this.venue.description) cols="80" rows="6" onChange=(action (mut this.description))}}
+          {{inline-errors pointer="/data/attributes/description" errors=this.errors}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Tags</label>
+          <PowerSelectMultiple @searchEnabled={{true}} @selected={{this.venue.tags}} @searchField="name" @options={{this.all_tags}} @onChange={{action (mut this.venue.tags)}} as |tag|>
+            {{tag.name}}
+          </PowerSelectMultiple>
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Address line 1</label>
+          <Input @type="text" @value={{this.venue.address_line_1}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/address_line_1" errors=this.errors}}
+          <label>Address line 2</label>
+          <Input @type="text" @value={{this.venue.address_line_2}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/address_line_2" errors=this.errors}}
+          <label>City</label>
+          <Input @type="text" @value={{this.venue.city}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/city" errors=this.errors}}
+          <label>Postcode</label>
+          <Input @type="text" @value={{this.venue.postcode}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/postcode" errors=this.errors}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Map Location Latitude</label>
+          <Input @type="text" @value={{this.venue.lat}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/lat" errors=this.errors}}
+          <label>Map Location Longitude</label>
+          <Input @type="text" @value={{this.venue.long}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/long" errors=this.errors}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>External map link</label>
+          <Input @type="text" @value={{this.venue.external_map_link}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/external_map_link" errors=this.errors}}
+        </div>
+
+        {{#if this.venue.is_retailer}}
+          <div class="form-group form-inline">
+            <label>Menu</label>
+            {{ck-editor-with-media value=(unbound this.venue.menu) cols="80" rows="6" onChange=(action (mut this.menu))}}
+            {{inline-errors pointer="/data/attributes/menu" errors=this.errors}}
+          </div>
+
+          <div class="form-group form-inline">
+            <label>Dietary Requirements</label>
+            <PowerSelectMultiple @options={{this.dietary_requirements}} @selected={{this.venue.dietary_requirements}} @placeholder="Select some names..." @onChange={{action (mut this.venue.dietary_requirements)}} as |dietary_requirement|>
+              {{dietary_requirement.name}}
+            </PowerSelectMultiple>
+          </div>
+        {{/if}}
+
+
+        <div class="form-group form-inline">
+          <label>List Order</label>
+          <Input @type="number" @value={{this.venue.list_order}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/list_order" errors=this.errors}}
+          <small>Venues are sorted in ascending order in the app using this value</small>
+        </div>
+
+        {{#unless this.venue.is_retailer}}
+          <div class="form-group form-inline checkbox">
+            <input 
+              type="checkbox" 
+              checked={{this.venue.include_in_clashfinder}} 
+              onclick={{action (mut this.venue.include_in_clashfinder) value='target.checked'}} />
+            <label>Include this venue in clashfinder?</label>          
+          </div>
+
+          <div class="form-group form-inline checkbox">
+            <input 
+              type="checkbox" 
+              checked={{this.venue.allow_concurrent_events}} 
+              onclick={{action (mut this.venue.allow_concurrent_events) value='target.checked'}} />
+            <label>Allow concurrent events at this venue?</label>          
+          </div>
+        {{/unless}}
+      </div> {{!-- .form-wrap --}}
+
+      <div class="image-wrap">
+        <Uploader @model={{this.venue}} @onFileAdd="uploadImage" @name="image" @dropzone_enabled={{true}}/>
+        {{inline-errors pointer="/data/attributes/image" errors=this.errors}}
+        {{#unless this.file_is_loaded}}
+          <img class="image-preview medium" src={{this.venue.image_thumb}}/>  <br/> <br/>
+        {{/unless}}
+      </div>
+
+    </div> {{!-- .editing --}}
+
+    <hr>
+
+  {{else}}
+    <div class="venue box">
+      <span class="tag id subtle">{{this.venue.id}}</span>
+      <div class="box-left">
+        <h1>
+          {{this.venue.name_and_subtitle}}
+          <span class="tag state {{this.venue.aasm_state}}">{{this.venue.aasm_state}}</span>
+        </h1>
+        {{{this.venue.description}}}
+
+        <p>
+          <strong>Address</strong>
+          {{#if this.venue.hasAddress}}
+            {{#if this.venue.address_line_1}}
+              {{this.venue.address_line_1}},
+            {{/if}}
+            {{#if this.venue.address_line_2}}
+              {{this.venue.address_line_2}},
+            {{/if}}
+            {{#if this.venue.city}}
+              {{this.venue.city}},
+            {{/if}}
+            {{#if this.venue.postcode}}
+              {{this.venue.postcode}}
+            {{/if}}
+          {{else}}
+            <i>Not set</i>
+          {{/if}}
+        </p>
+
+        <p>
+          <strong>External Map Link</strong>
+          {{#if this.venue.external_map_link}}
+            <a target="_blank" href="{{this.venue.external_map_link}}" rel="noopener noreferrer">External Map Link</a>
+          {{else}}
+            <i>Not set</i>
+          {{/if}}
+        </p>
+
+        {{#if this.venue.is_retailer}}
+          <p>
+            <strong>Menu</strong><br/>
+            {{{this.venue.truncated_menu}}}
+          </p>
+          <p>
+            <strong>Dietary Requirements:</strong>
+            {{#each this.venue.dietary_requirements as |dr|}}
+              {{dr.name}},
+            {{/each}}
+          </p>
+        {{/if}}
+        <table class="table">
+          <tr>
+            <th>Lat</th>
+            <td>
+              {{#if this.venue.lat}}
+                {{this.venue.lat}}
+              {{else}}
+                <i>Not set.</i>
+              {{/if}}
+            </td>
+          </tr>
+          <tr>
+            <th>Long</th>
+            <td>
+              {{#if this.venue.long}}
+                {{this.venue.long}}
+              {{else}}
+                <i>Not set.</i>
+              {{/if}}
+            </td>
+          </tr>
+          <tr>
+            <th>Tags</th>
+            <td>
+              {{#if this.venue.tags}}
+                {{#each this.venue.tags as |tag|}}
+                  <span class="tag">{{tag.name}} </span>
+                {{/each}}
+              {{else}}
+                <i>Not set</i>
+              {{/if}}
+            </td>
+          </tr>
+          <tr>
+            <th>Editors</th>
+            <td> 
+              {{#if this.venue.user_names}}
+                {{this.venue.user_names}}
+              {{else}}
+                <i>Not set.</i>
+              {{/if}}
+              {{!-- {{#if selectedEditorPermissions}} -->
+                <!-- {{#each selectedEditorPermissions as |user|}} -->
+                  <!-- {{user.email}} -->
+                <!-- {{/each}} -->
+              <!-- {{else}} -->
+                <!-- <i>Not set.</i> -->
+              <!-- {{/if}} --}}
+            </td>
+          </tr>
+          <tr>
+            <th>List order</th>
+            <td> 
+              {{#if this.venue.list_order}}
+                {{this.venue.list_order}}
+              {{else}}
+                <i>Not set.</i>
+              {{/if}}
+            </td>
+          </tr>
+          <tr>
+            <th>Allow concurrent events</th>
+            <td> 
+              {{#if this.venue.allow_concurrent_events}}
+                {{this.venue.allow_concurrent_events}}
+              {{else}}
+                <i>Not set.</i>
+              {{/if}}
+            </td>
+          </tr>
+        </table>  
+      </div>
+      <div class="box-right">
+        <div class="actions">
+          <button class="edit boma-btn" type="button" {{action "edit"}}>
+            <FaIcon @icon="pen-square"/>
+            Edit
+          </button>
+          <button class="delete boma-btn" type="button" {{action "delete"}}>
+            <FaIcon @icon="minus-circle"/>
+            Delete Venue
+          </button>
+          {{published-state resource=this.venue current_user=this.current_user btn_class_name="btn-block"}}
+          <button class="boma-btn close-square" type="button">
+            <FaIcon @icon="window-close"/>
+            Close
+          </button>
+        </div>
+        <img src={{this.venue.image_medium}}>
+      </div>
+    </div> {{!-- .production --}}
+  {{/if}}
+</div>

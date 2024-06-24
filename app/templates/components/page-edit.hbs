@@ -1,0 +1,93 @@
+<div data-set-number="{{this.setNumber}}" class="image-square toggle-content-wrap" style={{this.imageStyle}}>
+  <h3 class="page-name">{{this.page.name}}</h3>
+</div>
+<div class="content-wrap" style={{this.contentStyle}}>
+  {{#if this.is_editing_or_new}}
+    <div class="editing box page">
+      {{#if this.page.isNew}}
+        <h1>New Page</h1>
+      {{else}}
+        <h1>Editing Page {{this.page.name}}</h1>
+      {{/if}} 
+
+      <div class="actions">
+        {{#if this.page.isNew}}
+          <button class="boma-btn save" disabled={{this.is_saving}} type="button" {{action "saveNew"}}>
+            <FaIcon @icon="check-square"/>
+            {{#if this.is_saving}}
+              Saving
+            {{else}}
+              Save
+            {{/if}}
+          </button> 
+          <button class="boma-btn delete" type="button" {{action "discard"}}>
+            <FaIcon @icon="minus-circle"/>
+            Discard
+          </button>
+        {{else}}
+          <button class="boma-btn save" disabled={{this.is_saving}} type="button" {{action "save"}}>
+            <FaIcon @icon="check-square"/>
+            {{#if this.is_saving}}
+              Saving
+            {{else}}
+              Save
+            {{/if}}
+          </button>  
+          <button class="boma-btn delete" type="button" {{action "cancel"}}>
+            <FaIcon @icon="minus-circle"/>
+            Cancel
+          </button>
+        {{/if}}
+      </div>
+
+      <div class="form-wrap">
+        <div class="form-group form-inline">
+          <label>Page name</label>
+          <Input @type="text" @value={{this.page.name}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/name" errors=this.errors}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Content</label>
+          {{ck-editor-with-media value=this.page.content cols="80" rows="6" onChange=(action (mut this.content))}}
+          {{inline-errors pointer="/data/attributes/content" errors=this.errors}}
+        </div>
+      </div>
+
+      <div class="image-wrap">
+        <Uploader @model={{this.page}} @onFileAdd="uploadImage" @name="image" @dropzone_enabled={{true}}/>
+        {{inline-errors pointer="/data/attributes/image" errors=this.errors}}
+      </div>
+
+    </div> {{!-- .editing --}}
+
+  {{else}}
+    <div class="page box">
+      <div class="box-left">
+        <h1>
+          {{this.page.name}}
+          <span class="tag state {{this.page.aasm_state}}">{{this.page.aasm_state}}</span>
+        </h1>
+        {{{this.page.content}}}
+      </div>
+      <div class="box-right">
+        <div class="actions">
+          <button class="boma-btn edit" type="button" {{action "edit"}}>
+            <FaIcon @icon="pen-square"/>
+            Edit
+          </button>
+          <button class="boma-btn delete" type="button" {{action "delete"}}>
+            <FaIcon @icon="minus-circle"/>
+            Delete Page
+          </button>
+          {{!-- {{published-state resource=page current_user=current_user btn_class_name="btn-block"}} --}}
+          <button class="boma-btn close-square" type="button">
+            <FaIcon @icon="window-close"/>
+            Close
+          </button>
+        </div>
+        <img src="{{this.page.image_medium}}">
+      </div>
+    </div>
+  {{/if}}
+</div>

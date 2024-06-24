@@ -1,0 +1,342 @@
+<div data-set-number="{{this.setNumber}}" class="image-square toggle-content-wrap" style={{this.imageStyle}}>
+  <h3 class="page-name">{{this.article.title}} </h3>
+  <span class="tag state {{this.article.aasm_state}}">{{this.article.aasm_state}}</span>
+  <div class="box-top-right">
+    {{#if this.article.creator_has_publisher_token}}
+      <span class="tag publisher">Publisher Token</span>
+    {{/if}}
+  </div>
+</div>
+<div class="content-wrap" style={{this.contentStyle}}>
+  {{#if this.is_editing_or_new}}
+    <div class="editing box article">
+      {{#if this.article.isNew}}
+        <h1>New Article</h1>
+      {{else}}
+        <h1>Editing Article {{this.article.title}}</h1>
+      {{/if}} 
+
+      <div class="actions">
+        {{#if this.article.isNew}}
+          <button class="boma-btn save" disabled={{this.is_saving}} type="button" {{action "saveNew"}}>
+            <FaIcon @icon="check-square"/>
+            {{#if this.is_saving}}
+              Saving
+            {{else}}
+              Save
+            {{/if}}
+          </button> 
+          <button class="boma-btn delete" type="button" {{action "discard"}}>
+            <FaIcon @icon="minus-circle"/>
+            Discard
+          </button>
+        {{else}}
+          <button class="boma-btn save" disabled={{this.is_saving}} type="button" {{action "save"}}>
+            <FaIcon @icon="check-square"/>
+            {{#if this.is_saving}}
+              Saving
+            {{else}}
+              Save
+            {{/if}}
+          </button>  
+          <button class="boma-btn delete" type="button" {{action "cancelEdit"}}>
+            <FaIcon @icon="minus-circle"/>
+            Cancel
+          </button>
+        {{/if}}
+      </div>
+
+      <div class="form-wrap">
+       {{#unless this.article.is_community_article}}
+          <div class="form-group form-inline">
+            <label>Article Type</label>
+            <PowerSelect
+              @options={{this.all_article_types}}
+              @searchEnabled={{true}}
+              @searchField="name"
+              @selected={{this.selectedArticleType}}
+              @onChange={{action 'setArticleType'}} as |at|>
+              {{at.name}}
+            </PowerSelect>
+            {{inline-errors pointer="/data/attributes/article_type" errors=this.errors}}
+          </div>
+
+          <div class="form-group form-inline">
+            <label>Article title</label>
+            <Input @type="text" @value={{this.article.title}} class="form-control"/>
+            {{inline-errors pointer="/data/attributes/title" errors=this.errors}}
+          </div>
+
+          <div class="form-group form-inline">
+            <label>Article Standfirest</label>
+            <Input @type="text" @value={{this.article.standfirst}} class="form-control"/>
+            {{inline-errors pointer="/data/attributes/standfirst" errors=this.errors}}
+          </div>        
+        {{/unless}}
+
+        <div class="form-group form-inline">
+          <label>Content</label>
+          {{ck-editor-with-media value=(unbound this.article.content) cols="80" rows="6" onChange=(action (mut this.content)) toolbar=this.toolbar}}
+          {{inline-errors pointer="/data/attributes/content" errors=this.errors}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>External Link</label>
+          <Input @type="text" @value={{this.article.external_link}} class="form-control"/>
+          {{inline-errors pointer="/data/attributes/external_link" errors=this.errors}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Tags</label>
+          <PowerSelectMultiple
+            @options={{this.all_tags}}
+            @searchEnabled={{true}}
+            @searchField="name"
+            @selected={{this.article.tags}}
+            @onChange={{action (mut this.article.tags)}} as |tag|>
+            {{tag.name}}
+          </PowerSelectMultiple>
+
+{{!--           {{#power-select-multiple
+            selected=this.article.tags
+            searchField="name"
+            options=this.all_tags
+            onChange=(action (mut this.article.tags))
+            as |tag|
+          }}
+            {{tag.name}}
+          {{/power-select-multiple}} --}}
+        </div>
+
+        <div class="form-group form-inline">
+          <label>Created at</label>
+          <TdDatetimepicker
+            @locale="en-gb" 
+            @sideBySide="true"
+            @stepping="1" 
+            @date={{this.article.created_at}}
+            @setDate={{(action (mut this.article.created_at))}}
+            @inline={{false}}
+          />
+          {{inline-errors pointer="/data/attributes/external_link" errors=this.errors}}
+        </div>
+
+        {{#unless this.article.is_community_article}}
+
+          <div class="form-group form-inline">
+            <label>Audio</label>
+            <Uploader @model={{this.article}} @onFileAdd="uploadAudio" @name="audio"/>
+
+            {{#if this.uploadingAudio}}
+              <p>{{this.uploadingAudio}} - {{this.uploadingAudioPercentageComplete}}% Complete</p>
+            {{/if}}
+
+            {{inline-errors pointer="/data/attributes/audio" errors=this.errors}}
+          </div>
+        {{/unless}}
+
+        {{#unless this.article.is_community_article}}
+          <div class="form-group form-inline">
+            <label>Video</label>
+            <Uploader @model={{this.article}} @onFileAdd="uploadVideo" @name="video"/>
+
+            {{#if this.uploadingVideo}}
+              <p>{{this.uploadingVideo}} - {{this.uploadingVideoPercentageComplete}}% Complete</p>
+            {{/if}}
+
+            {{inline-errors pointer="/data/attributes/video" errors=this.errors}}
+          </div>
+        {{/unless}}    
+
+
+        {{!-- 
+        NB:  Surveys have been built to have a many to one relationships with a suryeyable model 
+        (in this case article), for now the UI / UX supports just one survey per article, hence this line of code .  
+        --}}
+
+        {{#each this.article.surveys as |survey|}}
+          <div class="form-group form-inline">
+            <label>Survey</label>
+
+            <EditSurvey @survey={{survey}} @surveyable_type="AppData::Article" @is_editing_or_new={{this.is_editing_or_new}} />
+          </div>
+        {{else}}
+          <div class="form-group form-inline">
+            <label>Survey</label>
+            <button data-test-create-new-question id="add-survey-button" class="boma-btn add" type="button" {{action "createSurvey"}}>
+              <FaIcon @icon="plus-square"/>
+              Create Survey
+            </button>
+          </div>
+        {{/each}}
+
+
+      </div>
+      
+      <div class="image-wrap">
+        <Uploader @model={{this.article}} @onFileAdd="uploadImage" @name="image" @dropzone_enabled={{true}}/>
+        {{inline-errors pointer="/data/attributes/image" errors=this.errors}}
+      </div>
+
+    </div> {{!-- .editing --}}
+
+  {{else}}
+    <div class="page box">
+      <span class="tag id subtle">{{this.article.id}}</span>
+      <div class="box-left">
+        {{#unless this.article.is_community_article}}
+          <h1>
+            {{this.article.title}}
+            <span class="tag state {{this.article.aasm_state}}">{{this.article.aasm_state}}</span>
+            {{#if (not (eq this.article.total_preferences 0))}}
+              <div class="total-preference">
+                <FaIcon @icon="heart"/>
+                {{this.article.total_preferences}}
+              </div>
+            {{/if}}
+          </h1>
+          <p>
+            <strong>Stand First</strong><br>
+            {{this.article.standfirst}}
+          </p>
+        {{/unless}}
+
+        <p>
+          <strong>Content:</strong><br>
+          {{{this.article.content}}}
+        </p>
+        <p>
+          <strong>External Link:</strong><br>
+          {{#if this.article.external_link}}
+            <a href="{{this.article.external_link}}">{{this.article.external_link}}</a>
+          {{else}}
+            <i>Not set.</i>
+          {{/if}}
+          <br>
+
+          {{#unless this.article.is_community_article}}
+            <br>
+            
+            <strong>Video</strong><br>
+            {{#if this.article.video_state}}
+              {{#if (eq this.article.video_state "draft")}}
+                Processing video, please wait.  <FaIcon @icon="spinner"/>
+              {{/if}}
+
+              {{#if (eq this.article.video_state "processed")}}
+                {{!-- {{videojs-player src=article.video_url type="application/x-mpegURL"}} --}}
+                
+                <a href="{{this.article.video_url}}">Video Link</a>
+              {{/if}}
+
+              {{#if (eq this.article.video_state "failed")}}
+                Sorry, there was an error when we tried to process the video you uploaded, please contact an administrator.  
+              {{/if}}
+            {{else}}
+              <i>Not set</i>
+            {{/if}}
+          {{/unless}}
+        </p>
+        
+        {{#unless this.article.is_community_article}}
+          <p>
+            <strong>Audio</strong><br>
+            {{#if (eq this.article.audio_state "failed")}}
+              {{#if (eq this.article.audio_state "failed")}}
+                Sorry, there was an error when we tried to process the audio you uploaded, please contact an administrator.  
+              {{/if}}
+            {{else}}
+              {{#if (eq this.article.audio_state "draft")}}
+                Processing audio, please wait.  <FaIcon @icon="spinner"/>
+              {{/if}}
+            
+              {{#if this.article.audio_url}}
+                {{!-- Legacy to support imported audio e.g Greenbelt Talks data --}}
+                <audio controls>
+                  <source src={{this.article.audio_url}} type="audio/mpeg">
+                Your browser does not support the audio element.
+                </audio><br>
+                <a href="{{this.article.audio_url}}">Audio Link</a>
+              {{/if}}
+            {{/if}}
+          </p>
+        {{/unless}}
+
+        <p>
+          {{#each this.article.tags as |tag|}}
+            <span class="tag">{{tag.name}}</span>
+          {{/each}}
+          {{#each this.article.errors.tags as |error|}}
+            <span class="error">{{error.message}}</span><br/>
+          {{/each}}           
+        </p>
+
+        {{#each this.article.surveys as |survey|}}
+          <EditSurvey @survey={{survey}} @is_editing_or_new={{this.is_editing_or_new}} />
+        {{/each}}
+      </div>
+      <div class="box-right">
+        <div class="actions">
+          {{#if this.current_user.is_admin_or_super_admin}}
+            {{#if this.isScheduling}}
+              <h5 class="clearboth">Send at:</h5>
+              <button class="boma-btn send" disabled={{this.isSaving}} type="button" {{action "save"}}>
+                <FaIcon @icon="clock"/>
+                Schedule
+              </button>
+              <button class="boma-btn right" type="button" {{action "cancelScheduling"}}>
+                <FaIcon @icon="minus-circle"/>
+                Cancel
+              </button>
+              <br><br>
+              <TdDatetimepicker
+                @locale="en-gb" 
+                @sideBySide="true"
+                @stepping="60"
+                @setDate={{action (mut this.article.publish_at)}}
+              />
+            {{else}}
+              {{#if this.article.is_published}}
+                <button class="boma-btn publish" type="button" {{action "unpublish"}}>
+                  <FaIcon @icon="upload"/>
+                  Unpublish
+                </button>  
+              {{else}}
+                {{#if this.article.publish_at}}
+                  <p>This article will be published at {{moment-format this.article.publish_at "h:mm a on MMM Do YYYY"}}</p>
+                  <button class="boma-btn delete right" disabled={{this.isSaving}} type="button" {{action "unschedule"}}>
+                    <FaIcon @icon="minus-circle"/>
+                    Cancel Scheduled Publishing
+                  </button>
+                {{else}}
+                  <button class="boma-btn publish" disabled={{this.resource.is_not_locked}} type="button" {{action "publish"}}>
+                    <FaIcon @icon="download"/>   
+                    Publish
+                  </button>
+                  <button class="boma-btn publish" type="button" {{action "publishLater"}}>
+                    <FaIcon @icon="clock"/>   
+                    Publish Later
+                  </button>
+                {{/if}}
+              {{/if}}
+              <button class="boma-btn edit" type="button" {{action "edit"}}>
+                <FaIcon @icon="pen-square"/>
+                Edit
+              </button>
+              <button class="boma-btn delete" type="button" {{action "delete"}}>
+                <FaIcon @icon="minus-circle"/>
+                Delete Article
+              </button>
+              {{!-- {{published-state resource=page current_user=current_user btn_class_name="btn-block"}} --}}
+              <button class="boma-btn close-square" type="button">
+                <FaIcon @icon="window-close"/>
+                Close
+              </button>
+            {{/if}}
+          {{/if}}
+        </div>
+        <img src="{{this.article.image_medium}}">        
+      </div>
+    </div>
+  {{/if}}
+</div>

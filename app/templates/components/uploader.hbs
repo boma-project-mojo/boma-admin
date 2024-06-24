@@ -1,0 +1,69 @@
+{{#if this.args.dropzone_enabled}}
+  {{#let (file-queue name="photos" onFileAdded=(action @onFileAdd)) as |queue|}}
+    <FileDropzone @queue={{queue}} as |dropzone|>
+      {{#if dropzone.active}}
+        <p>
+          <div class="file-upload-dropzone">
+            <span>
+              Drag and drop files onto this area or
+            </span>
+            <label for="upload-photo">
+              <input
+                type="file"
+                name="upload-photo"
+                id="upload-photo"
+                accept='image/jpeg,image/png'
+                multiple={{false}}
+                {{queue.selectFile filter=this.validateFile}}
+              >
+            </label>
+          </div>
+        </p>
+      {{else if queue.files.length}}
+        <img src="{{this.args.model.image_base64.data}}"/>
+        <label for="upload-photo">
+          <input
+            type="file"
+            name="upload-photo"
+            id="upload-photo"
+            accept='image/jpeg,image/png'
+            multiple={{false}}
+            {{queue.selectFile filter=this.validateFile}}
+          >
+        </label>
+      {{else if dropzone.supported}}
+        <p>
+          <div class="file-upload-dropzone">
+            <span>
+              Drag and drop files onto this area or
+            </span>
+                      <label for="upload-photo">
+              <input
+                type="file"
+                name="upload-photo"
+                id="upload-photo"
+                accept='image/jpeg,image/png'
+                multiple={{false}}
+                {{queue.selectFile filter=this.validateFile}}
+              >
+            </label>
+          </div>
+        </p>
+      {{/if}}
+    </FileDropzone>
+  {{/let}}
+{{else}}
+  {{#let (file-queue name=@name onFileAdded=(action @onFileAdd)) as |queue|}}
+    <label for="upload-{{@name}}">
+      <a>Choose a file</a>
+      <input 
+        id="upload-{{@name}}"
+        name="upload-{{@name}}"
+        type="file" 
+        accept="*" 
+        multiple={{false}}
+        {{queue.selectFile}}
+      >
+    </label>
+  {{/let}}
+{{/if}}
